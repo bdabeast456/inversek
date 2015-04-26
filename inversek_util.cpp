@@ -113,12 +113,19 @@ Arm::Arm(){
 Arm::Arm(double l, double angle, Arm next){
     length = l;
     angleFromVert = angle;
-    nextArm = next;
+    nextArm.push_back(next);
 }
 
 Arm::Arm(double l, double angle, Arm next, vector<double> coordinate){
     length = l;
     angleFromVert = angle;
-    nextArm = next;
+    nextArm.push_back(next);
     location = coordinate;
 }
+Arm Arm::getNext(){
+    return nextArm[0];
+}
+void Arm::setNext(Arm toSet){
+    nextArm[0] = toSet;
+}
+

@@ -32,7 +32,12 @@ class Arm {
         Arm(double l, double angle, Arm next, vector<double> coordinate);
         double length;
         double angleFromVert;
-        Arm nextArm;
+        //boost::recursive_wrapper<Arm>;
+        //Arm nextArm;
         //Arm firstArm;
         vector<double> location;
+        Arm getNext();
+        void setNext(Arm toSet);
+    private:
+        vector<Arm> nextArm;
 };
