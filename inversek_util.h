@@ -41,3 +41,19 @@ class Arm {
     private:
         vector<Arm> nextArm;
 };
+
+class Bezier{
+    /*
+    * Bezier is a class that holds the bezier data for a given surface. 
+    */
+    public:
+    Bezier(double patch[][3]);
+    Bezier(){};
+    vector<double> getPoint(double u);
+    vector<double> cx;
+    vector<double> cy;
+    vector<double> cz;
+    vector<vector<double> > patch_store;
+    
+};
+
