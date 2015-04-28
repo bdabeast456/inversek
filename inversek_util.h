@@ -57,3 +57,14 @@ class Bezier{
     
 };
 
+class Scene {
+	/*
+	* Scene is a class that serves as a container for objects to be written to the screen.
+	*/
+	public:
+	Scene(Arm a, double pt[3]);
+	Scene(){};
+	Arm rootArm;
+	vector<double> point;
+};
+

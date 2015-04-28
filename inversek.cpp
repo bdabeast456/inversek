@@ -57,6 +57,7 @@ class Viewport {
 Viewport    viewport;
 float numCurves = 0;
 vector<Bezier> curves;
+vector<vector<Scene> > frames;
 
 //****************************************************
 // Simple init function

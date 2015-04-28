@@ -199,3 +199,12 @@ vector<double> Bezier::getPoint(double u){
     return rv;
 }
 
+Scene::Scene(Arm a, double pt[3]) {
+	/*
+	* The scene container constructor.
+	*/
+	rootArm = a;
+	for (int i=0; i<3; i++) {
+		point.push_back(pt[i]);
+	}
+}
