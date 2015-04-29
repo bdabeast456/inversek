@@ -119,7 +119,28 @@ void myDisplay() {
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
 }
 
+vector<double> getEndPoint(double u_val){
+    double u = u_val;
+    bool assigned = false;
+    Bezier curve;
+    for(int i = 0; i < curves.size(); i++){
+        if(u <= 1){
+            assigned = true;
+            curve = curves[i];
+            break;
+        }
+        u -=1;
+    }
+    if(assigned){
+        return curve.getPoint(u);
+    }
+    vector<double> rv;
+    rv.push_back(INFINITY);
+    rv.push_back(INFINITY);
+    rv.push_back(INFINITY);
+    return rv;
 
+}
 //****************************************************
 // the usual stuff, nothing exciting here
 //****************************************************
