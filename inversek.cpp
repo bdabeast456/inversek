@@ -168,6 +168,7 @@ void myDisplay() {
          
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
+    curFrame = (curFrame + 1) % frames.size();
 }
 
 vector<double> getEndPoint(double u_val){
