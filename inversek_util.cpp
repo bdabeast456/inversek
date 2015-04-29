@@ -112,15 +112,17 @@ Arm::Arm(){
     angleFromVert = 0;
 }
 
-Arm::Arm(double l, double angle, Arm next){
+Arm::Arm(double l, double angle, double angle2, Arm next){
     length = l;
     angleFromVert = angle;
+    angleZ = angle2;
     nextArm.push_back(next);
 }
 
-Arm::Arm(double l, double angle, Arm next, vector<double> coordinate){
+Arm::Arm(double l, double angle, double angle2, Arm next, vector<double> coordinate){
     length = l;
     angleFromVert = angle;
+    angleZ = angle2;
     nextArm.push_back(next);
     location = coordinate;
 }

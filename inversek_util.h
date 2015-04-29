@@ -28,13 +28,11 @@ class Vector4 {
 class Arm {
     public:
         Arm();
-        Arm(double l, double angle, Arm next);
-        Arm(double l, double angle, Arm next, vector<double> coordinate);
+        Arm(double l, double angle, double angle2, Arm next);
+        Arm(double l, double angle, double angle2, Arm next, vector<double> coordinate);
         double length;
         double angleFromVert;
-        //boost::recursive_wrapper<Arm>;
-        //Arm nextArm;
-        //Arm firstArm;
+        double angleZ;
         vector<double> location;
         Arm getNext();
         void setNext(Arm toSet);

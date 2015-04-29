@@ -56,8 +56,9 @@ class Viewport {
 //****************************************************
 Viewport    viewport;
 float numCurves = 0;
+int curFrame = 0;
 vector<Bezier> curves;
-vector<vector<Scene> > frames;
+vector<Scene>  frames;
 
 //****************************************************
 // Simple init function
@@ -113,8 +114,58 @@ void myDisplay() {
     glLoadIdentity();
     gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
     
-    // PUT GLBEGINS AND GLENDS HERE. 
-     
+    // PUT GLBEGINS AND GLENDS HERE.
+    glLineWidth(1.5); 
+    glColor3f(1.0, 0.0, 0.0);
+    glBegin(GL_LINES);
+
+    Arm curArm = frames[curFrame].rootArm;
+    Arm a2 = curArm.getNext();
+    Arm a3 = a2.getNext();
+    Arm a4 = a3.getNext();
+    //
+
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(curArm.length*sin(curArm.angleFromVert), curArm.length*cos(curArm.angleFromVert), curArm.length*cos(curArm.angleZ));
+    //
+
+    glVertex3f(curArm.length*sin(curArm.angleFromVert), curArm.length*cos(curArm.angleFromVert), curArm.length*cos(curArm.angleZ)); 
+    glVertex3f(curArm.length*sin(curArm.angleFromVert) + a2.length*sin(curArm.angleFromVert + a2.angleFromVert),
+        curArm.length*cos(curArm.angleFromVert) +  a2.length*cos(curArm.angleFromVert + a2.angleFromVert),
+        curArm.length*cos(curArm.angleZ) + a2.length*cos(curArm.angleZ + a2.angleZ));
+    
+    //
+    glVertex3f(curArm.length*sin(curArm.angleFromVert) + a2.length*sin(curArm.angleFromVert + a2.angleFromVert),
+        curArm.length*cos(curArm.angleFromVert) +  a2.length*cos(curArm.angleFromVert + a2.angleFromVert),
+        curArm.length*cos(curArm.angleZ) + a2.length*cos(curArm.angleZ + a2.angleZ));
+
+    glVertex3f(curArm.length*sin(curArm.angleFromVert) + a2.length*sin(curArm.angleFromVert + a2.angleFromVert) 
+    + a3.length*sin(curArm.angleFromVert + a2.angleFromVert + a3.angleFromVert),
+        curArm.length*cos(curArm.angleFromVert) +  a2.length*cos(curArm.angleFromVert + a2.angleFromVert) 
+        + a3.length*cos(curArm.angleFromVert + a2.angleFromVert + a3.angleFromVert),
+            curArm.length*cos(curArm.angleZ) + a2.length*cos(curArm.angleZ + a2.angleZ) 
+            + a3.length*cos(curArm.angleZ + a2.angleZ + a3.angleZ));
+    //
+    glVertex3f(curArm.length*sin(curArm.angleFromVert) + a2.length*sin(curArm.angleFromVert + a2.angleFromVert) 
+    + a3.length*sin(curArm.angleFromVert + a2.angleFromVert + a3.angleFromVert),
+        curArm.length*cos(curArm.angleFromVert) +  a2.length*cos(curArm.angleFromVert + a2.angleFromVert) 
+        + a3.length*cos(curArm.angleFromVert + a2.angleFromVert + a3.angleFromVert),
+            curArm.length*cos(curArm.angleZ) + a2.length*cos(curArm.angleZ + a2.angleZ) 
+            + a3.length*cos(curArm.angleZ + a2.angleZ + a3.angleZ));
+    
+    glVertex3f(curArm.length*sin(curArm.angleFromVert) + a2.length*sin(curArm.angleFromVert + a2.angleFromVert) 
+    + a3.length*sin(curArm.angleFromVert + a2.angleFromVert + a3.angleFromVert)
+    + a4.length*sin(curArm.angleFromVert + a2.angleFromVert + a3.angleFromVert + a4.angleFromVert),
+        curArm.length*cos(curArm.angleFromVert) +  a2.length*cos(curArm.angleFromVert + a2.angleFromVert) 
+        + a3.length*cos(curArm.angleFromVert + a2.angleFromVert + a3.angleFromVert)
+        + a4.length*cos(curArm.angleFromVert + a2.angleFromVert + a3.angleFromVert + a4.angleFromVert),
+            curArm.length*cos(curArm.angleZ) + a2.length*cos(curArm.angleZ + a2.angleZ) 
+            + a3.length*cos(curArm.angleZ + a2.angleZ + a3.angleZ)
+            + a4.length*cos(curArm.angleZ + a2.angleZ + a3.angleZ + a4.angleZ) );
+
+    glEnd();
+    
+         
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
 }
