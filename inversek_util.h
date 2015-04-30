@@ -28,16 +28,13 @@ class Vector4 {
 class Arm {
     public:
         Arm();
-        Arm(double l, double angle, double angle2, Arm next);
-        Arm(double l, double angle, double angle2, Arm next, vector<double> coordinate);
+        Arm(double l, double rot[3]);
         double length;
-        double angleFromVert;
-        double angleZ;
-        vector<double> location;
+        vector<double> rotation;
         Arm getNext();
         void setNext(Arm toSet);
     private:
-        vector<Arm> nextArm;
+        Arm nextArm;
 };
 
 class Bezier{

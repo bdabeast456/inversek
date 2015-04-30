@@ -109,28 +109,23 @@ Vector4 Vector4::cross(Vector4 v) {
 
 Arm::Arm(){
     length = 0;
-    angleFromVert = 0;
+    rotation.push_back(0.0);
+    rotation.push_back(0.0);
+    rotation.push_back(0.0);
 }
 
-Arm::Arm(double l, double angle, double angle2, Arm next){
+Arm::Arm(double l, double rot[3]){
     length = l;
-    angleFromVert = angle;
-    angleZ = angle2;
-    nextArm.push_back(next);
+	rotation.push_back(rot[0]);
+	rotation.push_back(rot[1]);
+	rotation.push_back(rot[2]);
 }
 
-Arm::Arm(double l, double angle, double angle2, Arm next, vector<double> coordinate){
-    length = l;
-    angleFromVert = angle;
-    angleZ = angle2;
-    nextArm.push_back(next);
-    location = coordinate;
-}
 Arm Arm::getNext(){
-    return nextArm[0];
+    return nextArm;
 }
 void Arm::setNext(Arm toSet){
-    nextArm[0] = toSet;
+    nextArm = toSet;
 }
 
 
