@@ -61,6 +61,7 @@ class Viewport {
 Viewport    viewport;
 float numCurves = 0;
 int curFrame = 0;
+double ustep = .01;
 vector<Bezier> curves;
 vector<Scene*> frames;
 
@@ -204,6 +205,14 @@ vector<double> getEndPoint(double u_val){
     return rv;
 
 }
+
+void generateFrames() {
+	for (int curve=0; curve<curves.size(); curve++) {
+		for 
+	}
+}
+
+
 //****************************************************
 // the usual stuff, nothing exciting here
 //****************************************************
