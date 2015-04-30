@@ -28,16 +28,13 @@ class Vector4 {
 class Arm {
     public:
         Arm();
-        Arm(double l, double angle, double angle2, Arm next);
-        Arm(double l, double angle, double angle2, Arm next, vector<double> coordinate);
+        Arm(double l, double rot[3]);
         double length;
-        double angleFromVert;
-        double angleZ;
-        vector<double> location;
-        Arm getNext();
-        void setNext(Arm toSet);
+        vector<double> rotation;
+        Arm* getNext();
+        void setNext(Arm* toSet);
     private:
-        vector<Arm> nextArm;
+        Arm* nextArm;
 };
 
 class Bezier{
@@ -55,14 +52,34 @@ class Bezier{
     
 };
 
+class matrix {
+//0: translation, 1: scale, 2: rotation
+//Warning: don't use the invmult on a matrix created by transposeInverse
+public:
+    matrix();
+    matrix(double a, double b, double c, int mtype);
+    matrix(double x1, double x2, double x3, double x4,
+           double y1, double y2, double y3, double y4,
+           double z1, double z2, double z3, double z4,
+           double w1, double w2, double w3, double w4);
+    Vector4 multiplyv(Vector4 v);
+    Vector4 invmult(Vector4 v);
+    void multiplym(matrix m);
+    matrix transposeInverse();
+    void printMatrix();
+private:
+    vector<Vector4> mtrx;
+    vector<Vector4> inv;
+};
+
 class Scene {
 	/*
 	* Scene is a class that serves as a container for objects to be written to the screen.
 	*/
 	public:
-	Scene(Arm a, double pt[3]);
+	Scene(Arm* a, double pt[3]);
 	Scene(){};
-	Arm rootArm;
+	Arm* rootArm;
 	vector<double> point;
 };
 
