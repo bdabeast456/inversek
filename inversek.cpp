@@ -31,6 +31,10 @@
 #include <string.h>
 
 #include "inversek_util.h"
+#ifndef _Eigen_System
+#define _Eigen_System
+#include <Eigen/SVD>
+#endif
 
 #define PI 3.14159265  // Should be used from mathlib
 inline float sqr(float x) { return x*x; }
