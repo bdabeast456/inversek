@@ -207,8 +207,13 @@ vector<double> getEndPoint(double u_val){
 }
 
 void generateFrames() {
+	int steps = (int)(1/ustep);
 	for (int curve=0; curve<curves.size(); curve++) {
-		for 
+		for (int i=0; i<steps; i++) {
+			if (frames.size()==0) {
+				
+			}
+		}
 	}
 }
 
