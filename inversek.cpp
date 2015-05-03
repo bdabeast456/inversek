@@ -208,8 +208,9 @@ vector<double> getEndPoint(double u_val){
 
 void generateFrames() {
 	for (int curve=0; curve<curves.size(); curve++) {
-		for 
-	}
+    //for{ 
+	//}
+    }
 }
 
 
