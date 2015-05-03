@@ -62,6 +62,7 @@ Viewport    viewport;
 float numCurves = 0;
 int curFrame = 0;
 double ustep = .01;
+double errorBound = .00001;
 vector<Bezier> curves;
 vector<Scene*> frames;
 
@@ -203,16 +204,58 @@ vector<double> getEndPoint(double u_val){
     rv.push_back(INFINITY);
     rv.push_back(INFINITY);
     return rv;
+}
 
+double distance(double x, double y, double z, vector<double> point2) {
+	return pow(pow(x-point2[0], 2)+pow(y-point2[1], 2)+pow(z-point2[2], 2), .5);
+}
+
+void replaceContents(double destination[12], double source[12]) {
+	for (int i=0; i<12; i++) {
+		destination[i] = source[i];
+	}
 }
 
 void generateFrames() {
-	int steps = (int)(1/ustep);
-	for (int curve=0; curve<curves.size(); curve++) {
-		for (int i=0; i<steps; i++) {
-			if (frames.size()==0) {
-				
+	int steps = (int)(numCurves/ustep);
+	for (int i=0; i<steps; i++) {
+		vector<double> goal = getEndPoint(steps*ustep);
+		Arm* beforeArm;
+		if (frames.size()==0) {
+			beforeArm = new Arm();
+		} else {
+			beforeArm = frames[frames.size()-1]->rootArm;
+		}
+		Arm* a2 = beforeArm->getNext();
+		Arm* a3 = a2->getNext();
+		Arm* a4 = a3->getNext();
+		double rotations[12] = {beforeArm->rotation[0], beforeArm->rotation[1], beforeArm->rotation[2],
+							   a2->rotation[0], a2->rotation[1], a2->rotation[2],
+							   a3->rotation[0], a3->rotation[1], a3->rotation[2],
+							   a4->rotation[0], a4->rotation[1], a4->rotation[2]};
+		double rotationsTemp[12] = {rotations[0], rotations[1], rotations[2], 
+			                        rotations[3], rotations[4], rotations[5],
+			                        rotations[6], rotations[7], rotations[8],
+			                        rotations[9], rotations[10], rotations[11]};
+		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
+		double prevDist = INFINITY;
+		double alpha = 1;
+		while (true) {
+			Vector4 pe = ((matrix(rotationsTemp[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+						 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+						 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+						  Vector4(0, 0, 0, 1));
+		    double currDist = distance(pe.xc(), pe.yc(), pe.zc(), goal);
+			if (currDist <= errorBound || alpha < .001) {
+				replaceContents(rotations, rotationsTemp);
+				break;
+			} else if (currDist > prevDist) {
+				alpha = alpha / 2;
+			} else {
+				replaceContents(rotations, rotationsTemp);
 			}
+
 		}
 	}
 }
