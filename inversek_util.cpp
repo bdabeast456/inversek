@@ -108,10 +108,23 @@ Vector4 Vector4::cross(Vector4 v) {
 
 
 Arm::Arm(){
-    length = 0;
+    length = 3;
     rotation.push_back(0.0);
     rotation.push_back(0.0);
     rotation.push_back(0.0);
+    Arm* a2 = new Arm(2);
+    Arm* a3 = new Arm(1);
+    Arm* a4 = new Arm(1);
+    nextArm = a2;
+    a2->setNext(a3);
+    a3->setNext(a4);
+}
+
+Arm::Arm(double l) {
+    length = l;
+    rotation.push_back(0.0);
+    rotation.push_back(0.0);
+    rotation.push_back(0.0);    
 }
 
 Arm::Arm(double l, double rot[3]){
@@ -198,38 +211,30 @@ vector<double> Bezier::getPoint(double u){
 
 matrix::matrix() {
     mtrx.clear();
-    inv.clear();
     mtrx.push_back(Vector4(1.0, 0.0, 0.0, 0.0));
     mtrx.push_back(Vector4(0.0, 1.0, 0.0, 0.0));
     mtrx.push_back(Vector4(0.0, 0.0, 1.0, 0.0));
     mtrx.push_back(Vector4(0.0, 0.0, 0.0, 1.0));
-    inv.push_back(Vector4(1.0, 0.0, 0.0, 0.0));
-    inv.push_back(Vector4(0.0, 1.0, 0.0, 0.0));
-    inv.push_back(Vector4(0.0, 0.0, 1.0, 0.0));
-    inv.push_back(Vector4(0.0, 0.0, 0.0, 1.0));
-
 }
 
 matrix::matrix(double a, double b, double c, int mtype) {
     mtrx.clear();
-    inv.clear();
     if (mtype == 0) { // translation 
         mtrx.push_back(Vector4(1.0, 0.0, 0.0, a));
         mtrx.push_back(Vector4(0.0, 1.0, 0.0, b));
         mtrx.push_back(Vector4(0.0, 0.0, 1.0, c));
-        inv.push_back(Vector4(1.0, 0.0, 0.0, -a));
-        inv.push_back(Vector4(0.0, 1.0, 0.0, -b));
-        inv.push_back(Vector4(0.0, 0.0, 1.0, -c));
-    } else if (mtype == 1) { // scale
-        mtrx.push_back(Vector4(a, 0.0, 0.0, 0.0));
-        mtrx.push_back(Vector4(0.0, b, 0.0, 0.0));
-        mtrx.push_back(Vector4(0.0, 0.0, c, 0.0));
-        inv.push_back(Vector4(1.0/a, 0.0, 0.0, 0.0));
-        inv.push_back(Vector4(0.0, 1.0/b, 0.0, 0.0));
-        inv.push_back(Vector4(0.0, 0.0, 1.0/c, 0.0));
+    } else if (mtype == 1) { // cross product
+        Vector4 cross = Vector4(a, b, c, 0);
+        cross.unit();
+        double x = cross.xc();
+        double y = cross.yc();
+        double z = cross.zc();
+        mtrx.push_back(Vector4(0.0, -z, y, 0.0));
+        mtrx.push_back(Vector4(z, 0.0, -x, 0.0));
+        mtrx.push_back(Vector4(-y, x, 0.0, 0.0));
     } else if (mtype == 2) { //rotation
         double theta = pow(pow(a, 2) + pow(b, 2) + pow(c, 2), .5)*PI_rad;
-        Vector4 rotation = Vector4(a, b, c,0);
+        Vector4 rotation = Vector4(a, b, c, 0);
         rotation.unit();
         double x = rotation.xc();
         double y = rotation.yc();
@@ -243,18 +248,8 @@ matrix::matrix(double a, double b, double c, int mtype) {
         mtrx.push_back(Vector4(x*z-y*sin(theta)-x*z*cos(theta),
                     y*z+x*sin(theta)-z*y*cos(theta),
                     pow(z, 2)+(pow(x, 2)+pow(y, 2))*cos(theta), 0.0));
-        inv.push_back(Vector4(pow(x, 2)+(pow(z, 2)+pow(y, 2))*cos(-theta),
-                    x*y-z*sin(-theta)-x*y*cos(-theta),
-                    x*z+y*sin(-theta)-x*z*cos(-theta), 0.0));
-        inv.push_back(Vector4(x*y+z*sin(-theta)-x*y*cos(-theta),
-                    pow(y, 2)+(pow(x, 2)+pow(z, 2))*cos(-theta),
-                    y*z-x*sin(-theta)-y*z*cos(-theta), 0.0));
-        inv.push_back(Vector4(x*z-y*sin(-theta)-x*z*cos(-theta),
-                    y*z+x*sin(-theta)-z*y*cos(-theta),
-                    pow(z, 2)+(pow(x, 2)+pow(y, 2))*cos(-theta), 0.0));
     }
     mtrx.push_back(Vector4(0.0, 0.0, 0.0, 1.0));
-    inv.push_back(Vector4(0.0, 0.0, 0.0, 1.0));
 }
 
 matrix::matrix(double x1, double x2, double x3, double x4,
@@ -262,23 +257,14 @@ matrix::matrix(double x1, double x2, double x3, double x4,
         double z1, double z2, double z3, double z4,
         double w1, double w2, double w3, double w4) {
     mtrx.clear();
-    inv.clear();
     mtrx.push_back(Vector4(x1, y1, z1, w1));
     mtrx.push_back(Vector4(x2, y2, z2, w2));
     mtrx.push_back(Vector4(x3, y3, z3, w3));
     mtrx.push_back(Vector4(x4, y4, z4, w4));
-
-    for (int i=0; i<4; i++) {
-        inv.push_back(Vector4());
-    }
 }
 
 Vector4 matrix::multiplyv(Vector4 v) {
     return Vector4(mtrx[0].dot4(v), mtrx[1].dot4(v), mtrx[2].dot4(v), mtrx[3].dot4(v));
-}
-
-Vector4 matrix::invmult(Vector4 v) {
-    return Vector4(inv[0].dot4(v), inv[1].dot4(v), inv[2].dot4(v), inv[3].dot4(v));
 }
 
 void matrix::multiplym(matrix m) {
@@ -289,30 +275,24 @@ void matrix::multiplym(matrix m) {
     for (int i=0; i<4; i++) {
         mtrx[i] = Vector4(mtrx[i].dot4(a), mtrx[i].dot4(b), mtrx[i].dot4(c), mtrx[i].dot4(d));
     }
-    a = Vector4(inv[0].xc(), inv[1].xc(), inv[2].xc(), inv[3].xc());
-    b = Vector4(inv[0].yc(), inv[1].yc(), inv[2].yc(), inv[3].yc());
-    c = Vector4(inv[0].zc(), inv[1].zc(), inv[2].zc(), inv[3].zc());
-    d = Vector4(inv[0].wc(), inv[1].wc(), inv[2].wc(), inv[3].wc());
-    for (int i=0; i<4; i++) {
-        inv[i] = Vector4(m.inv[i].dot4(a), m.inv[i].dot4(b), m.inv[i].dot4(c), m.inv[i].dot4(d));
-    }
 }
 
-matrix matrix::transposeInverse() {
-    return matrix(inv[0].xc(), inv[0].yc(), inv[0].zc(), inv[0].wc(),
-            inv[1].xc(), inv[1].yc(), inv[1].zc(), inv[1].wc(),
-            inv[2].xc(), inv[2].yc(), inv[2].zc(), inv[2].wc(),
-            inv[3].xc(), inv[3].yc(), inv[3].zc(), inv[3].wc());
+matrix matrix::multiplymRet(matrix m) {
+    Vector4 a = Vector4(m.mtrx[0].xc(), m.mtrx[1].xc(), m.mtrx[2].xc(), m.mtrx[3].xc());
+    Vector4 b = Vector4(m.mtrx[0].yc(), m.mtrx[1].yc(), m.mtrx[2].yc(), m.mtrx[3].yc());
+    Vector4 c = Vector4(m.mtrx[0].zc(), m.mtrx[1].zc(), m.mtrx[2].zc(), m.mtrx[3].zc());
+    Vector4 d = Vector4(m.mtrx[0].wc(), m.mtrx[1].wc(), m.mtrx[2].wc(), m.mtrx[3].wc());
+    matrix retMatrix = matrix(mtrx[0].dot4(a), mtrx[0].dot4(b), mtrx[0].dot4(c), mtrx[0].dot4(d),
+                              mtrx[1].dot4(a), mtrx[1].dot4(b), mtrx[1].dot4(c), mtrx[1].dot4(d),
+                              mtrx[2].dot4(a), mtrx[2].dot4(b), mtrx[2].dot4(c), mtrx[2].dot4(d),
+                              mtrx[3].dot4(a), mtrx[3].dot4(b), mtrx[3].dot4(c), mtrx[3].dot4(d));
+    return retMatrix;
 }
 
 void matrix::printMatrix() {
     cout << "Printing matrix" << endl;
     for (int i=0; i<4; i++) {
         cout << mtrx[i].xc() << " " << mtrx[i].yc() << " " << mtrx[i].zc() << " " << mtrx[i].wc() << endl;
-    }
-    cout << endl;
-    for (int i=0; i<4; i++) {
-        cout << inv[i].xc() << " " << inv[i].yc() << " " << inv[i].zc() << " " << inv[i].wc() << endl;
     }
     cout << endl;
 }
