@@ -354,6 +354,7 @@ int main(int argc, char *argv[]) {
      /*
      * INSERT PARSER HERE
      */
+    cout << "s tart " << endl;
     const int MAX_CHARS_PER_LINE = 512;
     const int MAX_TOKENS_PER_LINE = 17;
     const char* const DELIMITER = " ";
@@ -364,7 +365,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
     string arg1 = string(argv[1]);
-    string arg2 = string(argv[2]);
+    //string arg2 = string(argv[2]);
     if(strlen(arg1.c_str()) >= 4){
         string last4 = arg1.substr(strlen(arg1.c_str())-4,string::npos);
         if(last4 == ".bez"){
@@ -387,6 +388,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
     else{
+        cout << "hello?" << endl;
         int lineNumber= 1;
         vector<int> patchNum; // when == 4, parse current set of patches into surfaces
         patchNum.push_back(0);
@@ -433,6 +435,7 @@ int main(int argc, char *argv[]) {
                     numCurves = atof(string(token[0]).c_str());
                 }
                 else{
+                    cout << "assigning thing" << endl;
                     double totalPatch[4][3];
                     totalPatch[0][0] = atof(string(token[0]).c_str());
                     totalPatch[0][1] = atof(string(token[1]).c_str());
@@ -463,6 +466,7 @@ int main(int argc, char *argv[]) {
         } // end of while(!myFile.eof())
         
     } //end of parsing
+    cout << "done parsing" << endl;
 
     
 
