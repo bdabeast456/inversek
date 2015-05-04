@@ -217,12 +217,6 @@ void replaceContents(double destination[12], double source[12]) {
 }
 
 void generateFrames() {
-<<<<<<< HEAD
-	for (int curve=0; curve<curves.size(); curve++) {
-    //for{ 
-	//}
-    }
-=======
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
 		vector<double> goal = getEndPoint(steps*ustep);
@@ -264,7 +258,6 @@ void generateFrames() {
 
 		}
 	}
->>>>>>> f1a20582f34b6c52e48f4b597353d06c85aac19f
 }
 
 
