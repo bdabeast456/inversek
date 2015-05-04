@@ -354,11 +354,11 @@ int main(int argc, char *argv[]) {
      /*
      * INSERT PARSER HERE
      */
-    cout << "s tart " << endl;
+    //cout << "s tart " << endl;
     const int MAX_CHARS_PER_LINE = 512;
     const int MAX_TOKENS_PER_LINE = 17;
     const char* const DELIMITER = " ";
-    cout << "STUFF" << endl;
+    //cout << "STUFF" << endl;
     string readFile;
     if (argc < 2) {
         cout << "No input file specified." << endl;
@@ -388,7 +388,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
     else{
-        cout << "hello?" << endl;
+        //cout << "hello?" << endl;
         int lineNumber= 1;
         vector<int> patchNum; // when == 4, parse current set of patches into surfaces
         patchNum.push_back(0);
@@ -435,7 +435,7 @@ int main(int argc, char *argv[]) {
                     numCurves = atof(string(token[0]).c_str());
                 }
                 else{
-                    cout << "assigning thing" << endl;
+                    //cout << "assigning thing" << endl;
                     double totalPatch[4][3];
                     totalPatch[0][0] = atof(string(token[0]).c_str());
                     totalPatch[0][1] = atof(string(token[1]).c_str());
@@ -468,7 +468,7 @@ int main(int argc, char *argv[]) {
     } //end of parsing
     cout << "done parsing" << endl;
 
-    cout << "MORE STUFF" << endl;
+    //cout << "MORE STUFF" << endl;
 
     generateFrames();
 
