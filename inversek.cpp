@@ -182,7 +182,6 @@ void myDisplay() {
          
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
-    curFrame = (curFrame + 1) % frames.size();
     //myDisplay();
 }
 
@@ -223,7 +222,7 @@ void generateFrames() {
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
 		vector<double> goal = getEndPoint(i*ustep);
-		cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
+		//cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
 		Arm* beforeArm;
 		if (frames.size()==0) {
 			beforeArm = new Arm();
@@ -361,18 +360,19 @@ void generateFrames() {
 		a3->setNext(a4);
 		double endPoint[3] = {Pe.xc(), Pe.yc(), Pe.zc()};
 		frames.push_back(new Scene(beforeArm, endPoint));
-        cout << "end of generateFrames" << endl;
+        //cout << "end of generateFrames" << endl;
 	}
 	cout << frames.size() << endl;
 }
 
 void specialKey(int key, int x, int y){
     if(key == GLUT_KEY_LEFT){
-        curFrame = (curFrame -2) % frames.size();
+        curFrame = (curFrame -1) % frames.size();
         myDisplay();
     }
     if(key == GLUT_KEY_RIGHT){
-        //curFrame += 0.5;
+        curFrame = (curFrame + 1) % frames.size();
+
         myDisplay();
     }
     
