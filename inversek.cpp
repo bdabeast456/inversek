@@ -34,6 +34,7 @@
 #ifndef _Eigen_System
 #define _Eigen_System
 #include "Eigen/SVD"
+#include "Eigen/Dense"
 #endif
 
 #define PI 3.14159265  // Should be used from mathlib
@@ -240,23 +241,107 @@ void generateFrames() {
 		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
 		double prevDist = INFINITY;
 		double alpha = 1;
+		Vector4 Pe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+					 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+					 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+					  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+					  Vector4(0, 0, 0, 1));
 		while (true) {
-			Vector4 pe = ((matrix(rotationsTemp[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
-		    double currDist = distance(pe.xc(), pe.yc(), pe.zc(), goal);
+		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
 			if (currDist <= errorBound || alpha < .001) {
 				replaceContents(rotations, rotationsTemp);
+				Pe = tempPe;
 				break;
 			} else if (currDist > prevDist) {
 				alpha = alpha / 2;
 			} else {
 				replaceContents(rotations, rotationsTemp);
+				Pe = tempPe;
 			}
-
+			matrix r1 = matrix(rotations[0], rotations[1], rotations[2], 2);
+			matrix r2 = matrix(rotations[3], rotations[4], rotations[5], 2);
+			matrix r3 = matrix(rotations[6], rotations[7], rotations[8], 2);
+			matrix r4 = matrix(rotations[9], rotations[10], rotations[11], 2);
+			matrix x1 = r1.multiplymRet(matrix(length[0], 0, 0, 0));
+			matrix x2 = r2.multiplymRet(matrix(length[1], 0, 0, 0));
+			matrix x3 = r3.multiplymRet(matrix(length[2], 0, 0, 0));
+			matrix x4 = r4.multiplymRet(matrix(length[3], 0, 0, 0));
+			Vector4 p4 = r4.multiplyv(Vector4(length[3], 0, 0, 1));
+			Vector4 preCross1 = x3.multiplymRet(x2.multiplymRet(x1)).multiplyv(p4);
+			Vector4 preCross2 = x3.multiplymRet(x2).multiplyv(p4);
+			Vector4 preCross3 = x3.multiplyv(p4);
+			Vector4 preCross4 = p4;
+			matrix cross1 = matrix(preCross1.xc(), preCross1.yc(), preCross1.zc(), 1);
+			matrix cross2 = matrix(preCross2.xc(), preCross2.yc(), preCross2.zc(), 1);
+			matrix cross3 = matrix(preCross3.xc(), preCross3.yc(), preCross3.zc(), 1);
+			matrix cross4 = matrix(preCross4.xc(), preCross4.yc(), preCross4.zc(), 1);
+			matrix nJ1 = cross1;
+			matrix nJ2 = r1.multiplymRet(cross2);
+			matrix nJ3 = r2.multiplymRet(r1).multiplymRet(cross3);
+			matrix nJ4 = r3.multiplymRet(r2.multiplymRet(r1)).multiplymRet(cross4);
+			Eigen::MatrixXd jacobian(3, 12);
+			jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
+						-nJ2.getValue(0, 0), -nJ2.getValue(1, 0), -nJ2.getValue(2, 0),
+						-nJ3.getValue(0, 0), -nJ3.getValue(1, 0), -nJ3.getValue(2, 0),
+						-nJ4.getValue(0, 0), -nJ4.getValue(1, 0), -nJ4.getValue(2, 0),
+						-nJ1.getValue(0, 1), -nJ1.getValue(1, 1), -nJ1.getValue(2, 1),
+						-nJ2.getValue(0, 1), -nJ2.getValue(1, 1), -nJ2.getValue(2, 1),
+						-nJ3.getValue(0, 1), -nJ3.getValue(1, 1), -nJ3.getValue(2, 1),
+						-nJ4.getValue(0, 1), -nJ4.getValue(1, 1), -nJ4.getValue(2, 1),
+						-nJ1.getValue(0, 2), -nJ1.getValue(1, 2), -nJ1.getValue(2, 2),
+						-nJ2.getValue(0, 2), -nJ2.getValue(1, 2), -nJ2.getValue(2, 2),
+						-nJ3.getValue(0, 2), -nJ3.getValue(1, 2), -nJ3.getValue(2, 2),
+						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);
+			Eigen::JacobiSVD<Eigen::MatrixXd> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
+			Eigen::MatrixXd uMat = svd.matrixU().transpose();
+			Eigen::MatrixXd vMat = svd.matrixV();
+			Eigen::MatrixXd sMat(12, 3);
+			Eigen::VectorXd sValues = svd.singularValues();
+			for (int j=0; j<3; j++) {
+				if (sValues(j) > errorBound) {
+					sValues(j) = 1.0/sValues(j);
+				} else {
+					sValues(j) = 0.0;
+				}
+			}
+			sMat << sValues(0), 0.0, 0.0,
+				    0.0, sValues(1), 0.0,
+				    0.0, 0.0, sValues(2),
+				    0.0, 0.0, 0.0,
+				    0.0, 0.0, 0.0,
+				    0.0, 0.0, 0.0,
+				    0.0, 0.0, 0.0,
+				    0.0, 0.0, 0.0,
+				    0.0, 0.0, 0.0,
+				    0.0, 0.0, 0.0,
+				    0.0, 0.0, 0.0,
+				    0.0, 0.0, 0.0;
+			Eigen::MatrixXd pseudoInverse = vMat*sMat*uMat;
+			Eigen::VectorXd input(3);
+			input << alpha * (goal[0]-Pe.xc()), alpha * (goal[1]-Pe.yc()), alpha * (goal[2]-Pe.zc());
+			Eigen::VectorXd result = pseudoInverse*input;
+			for (int k=0; k<12; k++) {
+				rotationsTemp[k] = rotations[k] + result(k);
+			}
 		}
+		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
+		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
+		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
+		double rot4[3] = {rotations[9], rotations[10], rotations[11]};
+		beforeArm = new Arm(length[0], rot1);
+		a2 = new Arm(length[1], rot2);
+		a3 = new Arm(length[2], rot3);
+		a4 = new Arm(length[3], rot4);
+		beforeArm->setNext(a2);
+		a2->setNext(a3);
+		a3->setNext(a4);
+		double endPoint[3] = {Pe.xc(), Pe.yc(), Pe.zc()};
+		frames.push_back(new Scene(beforeArm, endPoint));
 	}
 }
 

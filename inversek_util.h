@@ -16,6 +16,7 @@ class Vector4 {
         double wc();
         double dot4(Vector4 v);
         void unit();
+        Vector4 copy();
         Vector4 sub(Vector4 v);
         Vector4 cross(Vector4 v);
     private:
@@ -54,7 +55,7 @@ class Bezier{
 };
 
 class matrix {
-//0: translation, 1: scale, 2: rotation
+//0: translation, 1: cross product, 2: rotation
 //Warning: don't use the invmult on a matrix created by transposeInverse
 public:
     matrix();
@@ -66,6 +67,7 @@ public:
     Vector4 multiplyv(Vector4 v);
     void multiplym(matrix m);
     matrix multiplymRet(matrix m);
+    double getValue(int x, int y);
     void printMatrix();
 private:
     vector<Vector4> mtrx;

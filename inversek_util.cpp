@@ -96,6 +96,10 @@ void Vector4::unit() {
     }
 }
 
+Vector4 Vector4::copy() {
+    return Vector4(x, y, z, w);
+}
+
 Vector4 Vector4::sub(Vector4 v) {
     Vector4 newV = Vector4(x-v.xc(), y-v.yc(), z-v.zc(), 0);
     return newV;
@@ -287,6 +291,21 @@ matrix matrix::multiplymRet(matrix m) {
                               mtrx[2].dot4(a), mtrx[2].dot4(b), mtrx[2].dot4(c), mtrx[2].dot4(d),
                               mtrx[3].dot4(a), mtrx[3].dot4(b), mtrx[3].dot4(c), mtrx[3].dot4(d));
     return retMatrix;
+}
+
+double matrix::getValue(int x, int y) {
+    if (x==0) {
+        return mtrx[y].xc();
+    } else if (x==1) {
+        return mtrx[y].yc();
+    } else if (x==2) {
+        return mtrx[y].zc();
+    } else if (x==3) {
+        return mtrx[y].wc();
+    } else {
+        cout << "Error. Attempted to access out of bound part of matrix." << endl;
+        exit(0);
+    }
 }
 
 void matrix::printMatrix() {
