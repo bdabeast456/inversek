@@ -120,7 +120,7 @@ void myDisplay() {
     glMatrixMode(GL_MODELVIEW);                 // indicate we are specifying camera transformations
     glLoadIdentity();
     gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
-    
+    cout << curFrame << endl; 
     // PUT GLBEGINS AND GLENDS HERE.
     glLineWidth(1.5); 
     glColor3f(1.0, 0.0, 0.0);
@@ -183,7 +183,11 @@ void myDisplay() {
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
     curFrame = (curFrame + 1) % frames.size();
+<<<<<<< HEAD
     cout << curFrame << endl;
+=======
+    //myDisplay();
+>>>>>>> origin/master
 }
 
 vector<double> getEndPoint(double u_val){
@@ -219,6 +223,7 @@ void replaceContents(double destination[12], double source[12]) {
 }
 
 void generateFrames() {
+    cout << "in generateFrames" << endl;
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
 		vector<double> goal = getEndPoint(i*ustep);
@@ -250,9 +255,15 @@ void generateFrames() {
 					  Vector4(0, 0, 0, 1));
 		int iterations = 0;
 		while (true) {
+<<<<<<< HEAD
 			/*if (iterations % 100 == 0) {
 				cout << "HRM" << endl;
 			}*/
+=======
+			if (iterations % 100 == 0) {
+				//cout << "HRM" << endl;
+			}
+>>>>>>> origin/master
 			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
@@ -337,9 +348,11 @@ void generateFrames() {
 				    0.0, 0.0, 0.0,
 				    0.0, 0.0, 0.0;
 			Eigen::MatrixXf pseudoInverse = vMat*sMat*uMat;
+            //cout << "hi 335" << endl;
 			Eigen::VectorXf input(3);
 			input << alpha * (goal[0]-Pe.xc()), alpha * (goal[1]-Pe.yc()), alpha * (goal[2]-Pe.zc());
 			Eigen::VectorXf result = pseudoInverse*input;
+            //cout << "hi" << endl;
 			for (int k=0; k<12; k++) {
 				rotationsTemp[k] = rotations[k] + result(k);
 			}
@@ -358,8 +371,23 @@ void generateFrames() {
 		a3->setNext(a4);
 		double endPoint[3] = {Pe.xc(), Pe.yc(), Pe.zc()};
 		frames.push_back(new Scene(beforeArm, endPoint));
+        cout << "end of generateFrames" << endl;
 	}
 	cout << frames.size() << endl;
+}
+
+void specialKey(int key, int x, int y){
+    if(key == GLUT_KEY_LEFT){
+        curFrame = (curFrame -2) % frames.size();
+        myDisplay();
+    }
+    if(key == GLUT_KEY_RIGHT){
+        //curFrame += 0.5;
+        myDisplay();
+    }
+    
+
+
 }
 
 
@@ -509,7 +537,7 @@ int main(int argc, char *argv[]) {
     glutDisplayFunc(myDisplay);             // function to run when its time to draw something
     glutReshapeFunc(myReshape);             // function to run when the window gets resized
     //glutKeyboardFunc(myKey);
-    //glutSpecialFunc(specialKey);
+    glutSpecialFunc(specialKey);
     glEnable(GL_DEPTH_TEST | GL_LIGHTING);
     glDepthFunc(GL_LEQUAL);
     glutMainLoop();                         // infinite loop that will keep drawing and resizing
