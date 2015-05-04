@@ -352,6 +352,7 @@ void generateFrames() {
 		double endPoint[3] = {Pe.xc(), Pe.yc(), Pe.zc()};
 		frames.push_back(new Scene(beforeArm, endPoint));
 	}
+	cout << frames.size() << endl;
 }
 
 
