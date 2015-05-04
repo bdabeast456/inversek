@@ -62,7 +62,7 @@ class Viewport {
 Viewport    viewport;
 float numCurves = 0;
 int curFrame = 0;
-double ustep = .01;
+double ustep = .05;
 double errorBound = .00001;
 vector<Bezier> curves;
 vector<Scene*> frames;
@@ -220,7 +220,8 @@ void replaceContents(double destination[12], double source[12]) {
 void generateFrames() {
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
-		vector<double> goal = getEndPoint(steps*ustep);
+		vector<double> goal = getEndPoint(i*ustep);
+		cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
 		Arm* beforeArm;
 		if (frames.size()==0) {
 			beforeArm = new Arm();
@@ -246,7 +247,11 @@ void generateFrames() {
 					 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
 					  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 					  Vector4(0, 0, 0, 1));
+		int iterations = 0;
 		while (true) {
+			if (iterations % 100 == 0) {
+				cout << "HRM" << endl;
+			}
 			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
@@ -337,6 +342,7 @@ void generateFrames() {
 			for (int k=0; k<12; k++) {
 				rotationsTemp[k] = rotations[k] + result(k);
 			}
+			iterations++;
 		}
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
