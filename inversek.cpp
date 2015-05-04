@@ -218,6 +218,7 @@ void replaceContents(double destination[12], double source[12]) {
 }
 
 void generateFrames() {
+    cout << "in generateFrames" << endl;
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
 		vector<double> goal = getEndPoint(steps*ustep);
@@ -298,8 +299,8 @@ void generateFrames() {
 						-nJ3.getValue(0, 2), -nJ3.getValue(1, 2), -nJ3.getValue(2, 2),
 						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);
 			Eigen::JacobiSVD<Eigen::MatrixXd> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
-			Eigen::MatrixXd uMat = svd.matrixU().transpose();
-			Eigen::MatrixXd vMat = svd.matrixV();
+			Eigen::MatrixXd uMat = svd.matrixU();//.transpose();
+			Eigen::MatrixXd vMat = svd.matrixV().transpose();
 			Eigen::MatrixXd sMat(12, 3);
 			Eigen::VectorXd sValues = svd.singularValues();
 			for (int j=0; j<3; j++) {
@@ -321,10 +322,13 @@ void generateFrames() {
 				    0.0, 0.0, 0.0,
 				    0.0, 0.0, 0.0,
 				    0.0, 0.0, 0.0;
+            cout << "line 325" << endl;
 			Eigen::MatrixXd pseudoInverse = vMat*sMat*uMat;
+            cout << "pseudoInverse calculated" << endl;
 			Eigen::VectorXd input(3);
 			input << alpha * (goal[0]-Pe.xc()), alpha * (goal[1]-Pe.yc()), alpha * (goal[2]-Pe.zc());
 			Eigen::VectorXd result = pseudoInverse*input;
+            cout << "line 330" << endl;
 			for (int k=0; k<12; k++) {
 				rotationsTemp[k] = rotations[k] + result(k);
 			}
@@ -342,6 +346,7 @@ void generateFrames() {
 		a3->setNext(a4);
 		double endPoint[3] = {Pe.xc(), Pe.yc(), Pe.zc()};
 		frames.push_back(new Scene(beforeArm, endPoint));
+        cout << "end of generateFrames" << endl;
 	}
 }
 
