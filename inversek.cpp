@@ -62,8 +62,8 @@ class Viewport {
 Viewport    viewport;
 float numCurves = 0;
 int curFrame = 0;
-double ustep = .1;
-double errorBound = .00001;
+double ustep = .05;
+double errorBound = .000001;
 vector<Bezier> curves;
 vector<Scene*> frames;
 
@@ -90,9 +90,8 @@ void initScene(){
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHTING | GL_DEPTH_TEST);
     glEnable(GL_LIGHT0);
-    glEnable(GL_DEPTH_TEST);
 
 
 }
@@ -139,7 +138,7 @@ void myDisplay() {
     delete temp1;
     Arm a3 = *(a2.getNext());
     matrix a3T = matrix(a3.rotation[0], a3.rotation[1], a3.rotation[2], 2);
-    matrix* temp2 = new matrix(a2.length, 0, 0, 0);
+    matrix* temp2 = new matrix(a3.length, 0, 0, 0);
     a3T.multiplym(*temp2);
     a3T.multiplym(a2T);
     delete temp2;
@@ -182,7 +181,7 @@ void myDisplay() {
          
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
-    curFrame = (curFrame + 1) % frames.size();
+    cout << "test" << endl;
 }
 
 vector<double> getEndPoint(double u_val){
@@ -218,7 +217,6 @@ void replaceContents(double destination[12], double source[12]) {
 }
 
 void generateFrames() {
-    cout << "in generateFrames" << endl;
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
 		vector<double> goal = getEndPoint(i*ustep);
@@ -256,19 +254,16 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			if (currDist <= errorBound || alpha < .001) {
+			if (currDist <= errorBound || abs(prevDist - currDist) < .0000000000000001) {
 				replaceContents(rotations, rotationsTemp);
-				Pe = tempPe;
 				break;
 			} else if (currDist > prevDist) {
 				alpha = alpha / 2;
 			} else {
 				replaceContents(rotations, rotationsTemp);
+				prevDist = currDist;
 				Pe = tempPe;
 			}
-		    /*for (int q=0; q<12; q++) {
-		    	cout << q <<": " << rotations[q] << endl;
-		    }*/
 			matrix r1 = matrix(rotations[0], rotations[1], rotations[2], 2);
 			matrix r2 = matrix(rotations[3], rotations[4], rotations[5], 2);
 			matrix r3 = matrix(rotations[6], rotations[7], rotations[8], 2);
@@ -334,16 +329,15 @@ void generateFrames() {
 				    0.0, 0.0, 0.0,
 				    0.0, 0.0, 0.0;
 			Eigen::MatrixXf pseudoInverse = vMat*sMat*uMat;
-            //cout << "hi 335" << endl;
 			Eigen::VectorXf input(3);
 			input << alpha * (goal[0]-Pe.xc()), alpha * (goal[1]-Pe.yc()), alpha * (goal[2]-Pe.zc());
 			Eigen::VectorXf result = pseudoInverse*input;
-            //cout << "hi" << endl;
 			for (int k=0; k<12; k++) {
 				rotationsTemp[k] = rotations[k] + result(k);
 			}
 			iterations++;
 		}
+		cout << iterations << endl;
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
 		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
@@ -355,25 +349,33 @@ void generateFrames() {
 		beforeArm->setNext(a2);
 		a2->setNext(a3);
 		a3->setNext(a4);
-		double endPoint[3] = {Pe.xc(), Pe.yc(), Pe.zc()};
+		double endPoint[3] = {goal[0], goal[1], goal[2]};
 		frames.push_back(new Scene(beforeArm, endPoint));
-        cout << "end of generateFrames" << endl;
 	}
-	cout << frames.size() << endl;
+}
+
+int mod(int n, int m) {
+	if (n < m && n >=0) {
+		return n;
+	} else if (n>=m) {
+		return n%m;
+	} else {
+		while (n<0) {
+			n = n+m;
+		}
+		return n;
+	}
 }
 
 void specialKey(int key, int x, int y){
     if(key == GLUT_KEY_LEFT){
-        curFrame = (curFrame -2) % frames.size();
+        curFrame = mod(curFrame - 1, frames.size());
         myDisplay();
     }
     if(key == GLUT_KEY_RIGHT){
-        //curFrame += 0.5;
+    	curFrame = mod(curFrame+1, frames.size());
         myDisplay();
     }
-    
-
-
 }
 
 
@@ -499,11 +501,9 @@ int main(int argc, char *argv[]) {
     } //end of parsing
     cout << "done parsing" << endl;
 
-    //cout << "MORE STUFF" << endl;
-
     generateFrames();
 
-       //This initializes glut
+    //This initializes glut
     glutInit(&argc, argv);
     //This tells glut to use a double-buffered window with red, green, and blue channels 
 
@@ -519,12 +519,11 @@ int main(int argc, char *argv[]) {
     glutCreateWindow(argv[0]);
 
     initScene();                            // quick function to set up scene
+    glEnable(GL_LIGHTING | GL_DEPTH_TEST);
 
     glutDisplayFunc(myDisplay);             // function to run when its time to draw something
     glutReshapeFunc(myReshape);             // function to run when the window gets resized
-    //glutKeyboardFunc(myKey);
     glutSpecialFunc(specialKey);
-    glEnable(GL_DEPTH_TEST | GL_LIGHTING);
     glDepthFunc(GL_LEQUAL);
     glutMainLoop();                         // infinite loop that will keep drawing and resizing
 
