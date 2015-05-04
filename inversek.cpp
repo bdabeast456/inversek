@@ -62,7 +62,7 @@ class Viewport {
 Viewport    viewport;
 float numCurves = 0;
 int curFrame = 0;
-double ustep = .05;
+double ustep = .1;
 double errorBound = .00001;
 vector<Bezier> curves;
 vector<Scene*> frames;
@@ -183,6 +183,7 @@ void myDisplay() {
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
     curFrame = (curFrame + 1) % frames.size();
+    cout << curFrame << endl;
 }
 
 vector<double> getEndPoint(double u_val){
@@ -249,9 +250,9 @@ void generateFrames() {
 					  Vector4(0, 0, 0, 1));
 		int iterations = 0;
 		while (true) {
-			if (iterations % 100 == 0) {
+			/*if (iterations % 100 == 0) {
 				cout << "HRM" << endl;
-			}
+			}*/
 			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
