@@ -357,7 +357,7 @@ int main(int argc, char *argv[]) {
     const int MAX_CHARS_PER_LINE = 512;
     const int MAX_TOKENS_PER_LINE = 17;
     const char* const DELIMITER = " ";
-
+    cout << "STUFF" << endl;
     string readFile;
     if (argc < 2) {
         cout << "No input file specified." << endl;
@@ -464,7 +464,9 @@ int main(int argc, char *argv[]) {
         
     } //end of parsing
 
-    
+    cout << "MORE STUFF" << endl;
+
+    generateFrames();
 
        //This initializes glut
     glutInit(&argc, argv);
