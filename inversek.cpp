@@ -134,6 +134,7 @@ void myReshape(int w, int h) {
 // function that does the actual drawing of stuff
 //***************************************************
 void myDisplay() {
+    cout << curFrame << endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);               // clear the color buffer
 
     glMatrixMode(GL_MODELVIEW);                 // indicate we are specifying camera transformations
@@ -268,15 +269,9 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-<<<<<<< HEAD
-			if (currDist <= errorBound || (abs(prevDist - currDist) < 100  && iterations != 0 && alpha < 1) || iterations >= 500) {
-				cout << iterations << endl;
-                replaceContents(rotations, rotationsTemp);
-=======
-		    cout << currDist << "and" << alpha << endl;
-			if (currDist <= errorBound || (abs(prevDist - currDist) < .000001 && iterations != 0 && alpha < 1)) {
+		    //cout << currDist << "and" << alpha << endl;
+			if (currDist <= errorBound || (abs(prevDist - currDist) < 100 && iterations != 0 && alpha < 1)) {
 				replaceContents(rotations, rotationsTemp);
->>>>>>> 70d6052566ff18fa36bf2e3fba66cbf93a4e11a0
 				break;
 			} else if (currDist >= prevDist) {
 				alpha = alpha / 2;
