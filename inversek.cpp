@@ -62,13 +62,9 @@ class Viewport {
 Viewport    viewport;
 float numCurves = 0;
 int curFrame = 0;
-<<<<<<< HEAD
-double ustep = .01;
-=======
 int frameStepSize = 1;
 int counter = 1;
 double ustep = .05;
->>>>>>> 12d2def5653912e1452ecda2883ef669bacb5e7d
 double errorBound = .000001;
 vector<Bezier> curves;
 vector<Scene*> frames;
@@ -193,17 +189,12 @@ void myDisplay() {
          
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
-<<<<<<< HEAD
-    //cout << "test" << endl;
-
-=======
     
     if (counter % 10 == 0) {
     	curFrame = (curFrame + frameStepSize) % frames.size();
     	counter = 0;
     }
     counter++;
->>>>>>> 12d2def5653912e1452ecda2883ef669bacb5e7d
 }
 
 vector<double> getEndPoint(double u_val){
@@ -277,13 +268,9 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-<<<<<<< HEAD
-			if (currDist <= errorBound || (abs(prevDist - currDist) < .0001 && iterations != 0 && alpha < .0001) || iterations >= 500) {
-                cout << iterations << endl;
-=======
-			if (currDist <= errorBound || (abs(prevDist - currDist) < .000001 && iterations != 0 && alpha < 1)) {
->>>>>>> 12d2def5653912e1452ecda2883ef669bacb5e7d
-				replaceContents(rotations, rotationsTemp);
+			if (currDist <= errorBound || (abs(prevDist - currDist) < 100  && iterations != 0 && alpha < 1) || iterations >= 500) {
+				cout << iterations << endl;
+                replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist > prevDist) {
 				alpha = alpha / 2;
@@ -366,10 +353,6 @@ void generateFrames() {
 			}
 			iterations++;
 		}
-<<<<<<< HEAD
-		//cout << iterations << endl;
-=======
->>>>>>> 12d2def5653912e1452ecda2883ef669bacb5e7d
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
 		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
