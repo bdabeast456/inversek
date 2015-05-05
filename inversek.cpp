@@ -268,11 +268,17 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
+<<<<<<< HEAD
 			if (currDist <= errorBound || (abs(prevDist - currDist) < 100  && iterations != 0 && alpha < 1) || iterations >= 500) {
 				cout << iterations << endl;
                 replaceContents(rotations, rotationsTemp);
+=======
+		    cout << currDist << "and" << alpha << endl;
+			if (currDist <= errorBound || (abs(prevDist - currDist) < .000001 && iterations != 0 && alpha < 1)) {
+				replaceContents(rotations, rotationsTemp);
+>>>>>>> 70d6052566ff18fa36bf2e3fba66cbf93a4e11a0
 				break;
-			} else if (currDist > prevDist) {
+			} else if (currDist >= prevDist) {
 				alpha = alpha / 2;
 			} else {
 				replaceContents(rotations, rotationsTemp);
@@ -383,14 +389,16 @@ int mod(int n, int m) {
 }
 
 void specialKey(int key, int x, int y){
-    if(key == GLUT_KEY_LEFT){
-        curFrame = mod(curFrame - 1, frames.size());
-        //myDisplay();
-    }
-    if(key == GLUT_KEY_RIGHT){
-    	curFrame = mod(curFrame+1, frames.size());
-        //myDisplay();
-    }
+	if (frameStepSize == 0) {
+    	if(key == GLUT_KEY_LEFT){
+        	curFrame = mod(curFrame - 1, frames.size());
+        	myDisplay();
+    	}
+    	if(key == GLUT_KEY_RIGHT){
+    		curFrame = mod(curFrame+1, frames.size());
+        	myDisplay();
+   		}
+   	}
 }
 
 
