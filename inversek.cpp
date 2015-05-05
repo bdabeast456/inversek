@@ -220,7 +220,7 @@ void generateFrames() {
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
 		vector<double> goal = getEndPoint(i*ustep);
-		cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
+		//cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
 		Arm* beforeArm;
 		if (frames.size()==0) {
 			beforeArm = new Arm();
@@ -338,6 +338,7 @@ void generateFrames() {
 			}
 			iterations++;
 		}
+		cout << iterations << endl;
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
 		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
