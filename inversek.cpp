@@ -381,14 +381,16 @@ int mod(int n, int m) {
 }
 
 void specialKey(int key, int x, int y){
-    if(key == GLUT_KEY_LEFT){
-        curFrame = mod(curFrame - 1, frames.size());
-        //myDisplay();
-    }
-    if(key == GLUT_KEY_RIGHT){
-    	curFrame = mod(curFrame+1, frames.size());
-        //myDisplay();
-    }
+	if (frameStepSize == 0) {
+    	if(key == GLUT_KEY_LEFT){
+        	curFrame = mod(curFrame - 1, frames.size());
+        	myDisplay();
+    	}
+    	if(key == GLUT_KEY_RIGHT){
+    		curFrame = mod(curFrame+1, frames.size());
+        	myDisplay();
+   		}
+   	}
 }
 
 
