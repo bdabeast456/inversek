@@ -254,13 +254,14 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			if (currDist <= errorBound || abs(prevDist - currDist) < .0000000000000001) {
+			if (currDist <= errorBound || (abs(prevDist - currDist) < .0000000000000001 && iterations != 0 && alpha < .000000000000001)) {
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist > prevDist) {
 				alpha = alpha / 2;
 			} else {
 				replaceContents(rotations, rotationsTemp);
+				alpha = 1;
 				prevDist = currDist;
 				Pe = tempPe;
 			}
@@ -337,7 +338,6 @@ void generateFrames() {
 			}
 			iterations++;
 		}
-		cout << iterations << endl;
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
 		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
