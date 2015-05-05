@@ -181,11 +181,7 @@ void myDisplay() {
          
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
-<<<<<<< HEAD
-    //myDisplay();
-=======
     cout << "test" << endl;
->>>>>>> a984657d1849c62567718f9af4c8172e0f02ab7e
 }
 
 vector<double> getEndPoint(double u_val){
@@ -224,7 +220,7 @@ void generateFrames() {
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
 		vector<double> goal = getEndPoint(i*ustep);
-		//cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
+		cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
 		Arm* beforeArm;
 		if (frames.size()==0) {
 			beforeArm = new Arm();
@@ -341,7 +337,7 @@ void generateFrames() {
 			}
 			iterations++;
 		}
-		cout << iterations << endl;
+		cout << iterations << "iterations" << endl;
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
 		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
@@ -355,10 +351,6 @@ void generateFrames() {
 		a3->setNext(a4);
 		double endPoint[3] = {goal[0], goal[1], goal[2]};
 		frames.push_back(new Scene(beforeArm, endPoint));
-<<<<<<< HEAD
-        //cout << "end of generateFrames" << endl;
-=======
->>>>>>> a984657d1849c62567718f9af4c8172e0f02ab7e
 	}
 }
 
@@ -377,20 +369,11 @@ int mod(int n, int m) {
 
 void specialKey(int key, int x, int y){
     if(key == GLUT_KEY_LEFT){
-<<<<<<< HEAD
-        curFrame = (curFrame -1) % frames.size();
-        myDisplay();
-    }
-    if(key == GLUT_KEY_RIGHT){
-        curFrame = (curFrame + 1) % frames.size();
-
-=======
         curFrame = mod(curFrame - 1, frames.size());
         myDisplay();
     }
     if(key == GLUT_KEY_RIGHT){
     	curFrame = mod(curFrame+1, frames.size());
->>>>>>> a984657d1849c62567718f9af4c8172e0f02ab7e
         myDisplay();
     }
 }
