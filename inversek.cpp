@@ -62,6 +62,8 @@ class Viewport {
 Viewport    viewport;
 float numCurves = 0;
 int curFrame = 0;
+int frameStepSize = 1;
+int counter = 1;
 double ustep = .05;
 double errorBound = .000001;
 vector<Bezier> curves;
@@ -96,6 +98,24 @@ void initScene(){
 
 }
 
+void myFrameMove() {
+#ifdef _WIN32
+  Sleep(10);                                   
+#endif
+  glutPostRedisplay(); 
+}
+
+void myKey(unsigned char key, int x, int y) {
+    /*
+     * General input key handling.
+     */
+    if(key==32) {
+        frameStepSize = 1 - frameStepSize;
+    } else if (key==27) {
+    	exit(0);
+    }
+}
+
 
 //****************************************************
 // reshape viewport if the window is resized
@@ -119,35 +139,23 @@ void myDisplay() {
     glMatrixMode(GL_MODELVIEW);                 // indicate we are specifying camera transformations
     glLoadIdentity();
     gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
-    cout << curFrame << endl; 
     // PUT GLBEGINS AND GLENDS HERE.
     glLineWidth(1.5); 
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
 
     Arm curArm = *(frames[curFrame]->rootArm);
-    matrix rootT = matrix(curArm.rotation[0], curArm.rotation[1], curArm.rotation[2], 2);
-    matrix* temp = new matrix(curArm.length, 0, 0, 0);
-    rootT.multiplym(*temp);
-    delete temp;
+    matrix rootT = matrix(curArm.rotation[0], curArm.rotation[1], curArm.rotation[2], 2).multiplymRet(
+    			   matrix(curArm.length, 0, 0, 0));
     Arm a2 = *(curArm.getNext());
-    matrix a2T = matrix(a2.rotation[0], a2.rotation[1], a2.rotation[2], 2);
-    matrix* temp1 = new matrix(a2.length, 0, 0, 0);
-    a2T.multiplym(*temp1);
-    a2T.multiplym(rootT);
-    delete temp1;
+    matrix a2T = matrix(a2.rotation[0], a2.rotation[1], a2.rotation[2], 2).multiplymRet(
+    		     matrix(a2.length, 0, 0, 0).multiplymRet(rootT));
     Arm a3 = *(a2.getNext());
-    matrix a3T = matrix(a3.rotation[0], a3.rotation[1], a3.rotation[2], 2);
-    matrix* temp2 = new matrix(a3.length, 0, 0, 0);
-    a3T.multiplym(*temp2);
-    a3T.multiplym(a2T);
-    delete temp2;
+    matrix a3T = matrix(a3.rotation[0], a3.rotation[1], a3.rotation[2], 2).multiplymRet(
+    		     matrix(a3.length, 0, 0, 0).multiplymRet(a2T));
     Arm a4 = *(a3.getNext());
-    matrix a4T = matrix(a4.rotation[0], a4.rotation[1], a4.rotation[2], 2);
-    matrix* temp3 = new matrix(a4.length, 0, 0, 0);
-    a4T.multiplym(*temp3);
-    a4T.multiplym(a3T);
-    delete temp3;
+    matrix a4T = matrix(a4.rotation[0], a4.rotation[1], a4.rotation[2], 2).multiplymRet(
+    		     matrix(a4.length, 0, 0, 0).multiplymRet(a3T));
 
     Vector4* start = new Vector4(0, 0, 0, 1);
     Vector4 p1 = rootT.multiplyv(*start);
@@ -181,7 +189,12 @@ void myDisplay() {
          
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
-    cout << "test" << endl;
+    
+    if (counter % 10 == 0) {
+    	curFrame = (curFrame + frameStepSize) % frames.size();
+    	counter = 0;
+    }
+    counter++;
 }
 
 vector<double> getEndPoint(double u_val){
@@ -220,7 +233,7 @@ void generateFrames() {
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
 		vector<double> goal = getEndPoint(i*ustep);
-		//cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
+		cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
 		Arm* beforeArm;
 		if (frames.size()==0) {
 			beforeArm = new Arm();
@@ -240,7 +253,7 @@ void generateFrames() {
 			                        rotations[9], rotations[10], rotations[11]};
 		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
 		double prevDist = INFINITY;
-		double alpha = 1;
+		double alpha = .5;
 		Vector4 Pe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
@@ -254,11 +267,7 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-<<<<<<< HEAD
-			if (currDist <= errorBound || (abs(prevDist - currDist) < 1 && iterations != 0 && alpha < 1)) {
-=======
-			if (currDist <= errorBound || (abs(prevDist - currDist) < .00000001 && iterations != 0 && alpha < .000001)) {
->>>>>>> 3596d8b6c3b8e765c7975b29ebf1c53daec9ac7b
+			if (currDist <= errorBound || (abs(prevDist - currDist) < .000001 && iterations != 0 && alpha < 1)) {
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist > prevDist) {
@@ -269,7 +278,6 @@ void generateFrames() {
 				prevDist = currDist;
 				Pe = tempPe;
 			}
-            //cout << "gets here?" << endl;
 			matrix r1 = matrix(rotations[0], rotations[1], rotations[2], 2);
 			matrix r2 = matrix(rotations[3], rotations[4], rotations[5], 2);
 			matrix r3 = matrix(rotations[6], rotations[7], rotations[8], 2);
@@ -343,7 +351,6 @@ void generateFrames() {
 			}
 			iterations++;
 		}
-		cout << iterations << endl;
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
 		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
@@ -376,11 +383,11 @@ int mod(int n, int m) {
 void specialKey(int key, int x, int y){
     if(key == GLUT_KEY_LEFT){
         curFrame = mod(curFrame - 1, frames.size());
-        myDisplay();
+        //myDisplay();
     }
     if(key == GLUT_KEY_RIGHT){
     	curFrame = mod(curFrame+1, frames.size());
-        myDisplay();
+        //myDisplay();
     }
 }
 
@@ -529,8 +536,11 @@ int main(int argc, char *argv[]) {
 
     glutDisplayFunc(myDisplay);             // function to run when its time to draw something
     glutReshapeFunc(myReshape);             // function to run when the window gets resized
+    glutKeyboardFunc(myKey);
     glutSpecialFunc(specialKey);
+    glEnable(GL_LIGHTING | GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+	glutIdleFunc(myFrameMove);
     glutMainLoop();                         // infinite loop that will keep drawing and resizing
 
 
