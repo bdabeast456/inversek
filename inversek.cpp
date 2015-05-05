@@ -254,7 +254,7 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			if (currDist <= errorBound || (abs(prevDist - currDist) < .0000000000000001 && iterations != 0 && alpha < .000000000000001)) {
+			if (currDist <= errorBound || (abs(prevDist - currDist) < .00000001 && iterations != 0 && alpha < .000001)) {
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist > prevDist) {
