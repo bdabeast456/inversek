@@ -64,8 +64,8 @@ float numCurves = 0;
 int curFrame = 0;
 int frameStepSize = 0;
 int counter = 1;
-double ustep = .04;
-double errorBound = .00001; 
+double ustep = .05;
+double errorBound = 1e-6; 
 double epsilon = 1e-9;
 vector<Bezier> curves;
 vector<Scene*> frames;
@@ -193,6 +193,7 @@ void myDisplay() {
     	curFrame = (curFrame + frameStepSize) % frames.size();
     	counter = 0;
     }
+    p4.printVector4();
     counter++;
 }
 
@@ -403,7 +404,10 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			if (currDist <= errorBound || (iterations != 0 && alpha < pow(10, -10))) {
+		    if (currDist <= errorBound) {
+		    	cout << "\n\n\n\n" << "K" << "\n\n\n\n" << endl;
+		    }
+			if (currDist <= errorBound || alpha < errorBound) {
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist >= prevDist) {
@@ -438,8 +442,8 @@ void generateFrames() {
 
 			matrix nJ1 = cross1;
 			matrix nJ2 = r1.multiplymRet(cross2);
-			matrix nJ3 = r2.multiplymRet(r1).multiplymRet(cross3);
-			matrix nJ4 = r3.multiplymRet(r2.multiplymRet(r1)).multiplymRet(cross4);
+			matrix nJ3 = r1.multiplymRet(r2).multiplymRet(cross3);
+			matrix nJ4 = r1.multiplymRet(r2.multiplymRet(r3)).multiplymRet(cross4);
             
 			Eigen::MatrixXd jacobian(3, 12);
 			jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
