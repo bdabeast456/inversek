@@ -196,7 +196,7 @@ void myDisplay() {
     	curFrame = (curFrame + frameStepSize) % frames.size();
     	counter = 0;
     }
-    cout << p4.xc() << ", " << p4.yc() << ", " << p4.zc() << endl;
+    //cout << p4.xc() << ", " << p4.yc() << ", " << p4.zc() << endl;
     counter++;
 }
 
@@ -695,15 +695,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
