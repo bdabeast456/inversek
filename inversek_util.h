@@ -18,6 +18,7 @@ class Vector4 {
         void unit();
         Vector4 copy();
         Vector4 sub(Vector4 v);
+        Vector4 scale(double s);
         Vector4 cross(Vector4 v);
     private:
         double x;
