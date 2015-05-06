@@ -417,7 +417,7 @@ void generateFrames() {
 				prevDist = currDist;
 				Pe = tempPe;
 			}
-			/*matrix r1 = matrix(rotations[0], rotations[1], rotations[2], 2);
+			matrix r1 = matrix(rotations[0], rotations[1], rotations[2], 2);
 			matrix r2 = matrix(rotations[3], rotations[4], rotations[5], 2);
 			matrix r3 = matrix(rotations[6], rotations[7], rotations[8], 2);
 			matrix r4 = matrix(rotations[9], rotations[10], rotations[11], 2);
@@ -429,8 +429,8 @@ void generateFrames() {
 
 			Vector4 p4 = r4.multiplyv(Vector4(length[3], 0, 0, 1));
 
-			Vector4 preCross1 = x3.multiplymRet(x2.multiplymRet(x1)).multiplyv(p4);
-			Vector4 preCross2 = x3.multiplymRet(x2).multiplyv(p4);
+			Vector4 preCross1 = x1.multiplymRet(x2.multiplymRet(x3)).multiplyv(p4);
+			Vector4 preCross2 = x2.multiplymRet(x3).multiplyv(p4);
 			Vector4 preCross3 = x3.multiplyv(p4);
 			Vector4 preCross4 = p4;
 
@@ -456,10 +456,10 @@ void generateFrames() {
 						-nJ1.getValue(0, 2), -nJ1.getValue(1, 2), -nJ1.getValue(2, 2),
 						-nJ2.getValue(0, 2), -nJ2.getValue(1, 2), -nJ2.getValue(2, 2),
 						-nJ3.getValue(0, 2), -nJ3.getValue(1, 2), -nJ3.getValue(2, 2),
-						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);*/
-			Eigen::MatrixXf jacobian(3, 12);
+						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);
+			/*Eigen::MatrixXf jacobian2(3, 12);
 			vector<Vector4> pD = partial(rotations, length);
-			jacobian << pD[0].xc(), pD[1].xc(), pD[2].xc(),
+			jacobian2 << pD[0].xc(), pD[1].xc(), pD[2].xc(),
 						 pD[3].xc(), pD[4].xc(), pD[5].xc(),
 						 pD[6].xc(), pD[7].xc(), pD[8].xc(), 
 						 pD[9].xc(), pD[10].xc(), pD[11].xc(),
@@ -471,8 +471,8 @@ void generateFrames() {
 						 pD[3].zc(), pD[4].zc(), pD[5].zc(),
 						 pD[6].zc(), pD[7].zc(), pD[8].zc(), 
 						 pD[9].zc(), pD[10].zc(), pD[11].zc();
-			cout << "\n\n" << jacobian << "\n\n" << endl;
-			//exit(0);
+			cout << "\n\n" << jacobian << "\n\n" << jacobian2 << endl;
+			exit(0);*/
 			Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeFullU | Eigen::ComputeFullV);
 			Eigen::MatrixXf uMat = (svd.matrixU()).transpose();
 			Eigen::MatrixXf vMat = svd.matrixV();

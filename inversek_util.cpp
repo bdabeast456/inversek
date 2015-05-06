@@ -245,6 +245,8 @@ matrix::matrix(double a, double b, double c, int mtype) {
             mtrx.push_back(Vector4());
             mtrx.push_back(Vector4());
             mtrx.push_back(Vector4());
+            mtrx.push_back(Vector4());
+            return;
         }
     } else if (mtype == 2) { //rotation
         if (a!=0 || b!=0 || c!=0) {
