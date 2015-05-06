@@ -62,10 +62,11 @@ class Viewport {
 Viewport    viewport;
 float numCurves = 0;
 int curFrame = 0;
-int frameStepSize = 1;
+int frameStepSize = 0;
 int counter = 1;
 double ustep = .05;
-double errorBound = .000001;
+double errorBound = .00001; 
+double epsilon = 1e-9;
 vector<Bezier> curves;
 vector<Scene*> frames;
 
@@ -195,6 +196,7 @@ void myDisplay() {
     	curFrame = (curFrame + frameStepSize) % frames.size();
     	counter = 0;
     }
+    cout << p4.xc() << ", " << p4.yc() << ", " << p4.zc() << endl;
     counter++;
 }
 
@@ -230,6 +232,143 @@ void replaceContents(double destination[12], double source[12]) {
 	}
 }
 
+vector<Vector4> partial(double rotations[12], double length[4]) {
+	vector<Vector4> retVector;
+	Vector4 tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   		   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+					   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+					    matrix(rotations[0]+epsilon, rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+					    Vector4(0, 0, 0, 1));	
+	Vector4 tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   		   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+					   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+					    matrix(rotations[0]-epsilon, rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+					    Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1]+epsilon, rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1]-epsilon, rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2]+epsilon, 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2]-epsilon, 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3]+epsilon, rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+			    Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3]-epsilon, rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4]+epsilon, rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+			    Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4]-epsilon, rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5]+epsilon, 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5]-epsilon, 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6]+epsilon, rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6]-epsilon, rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7]+epsilon, rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7]-epsilon, rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8]+epsilon, 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8]-epsilon, 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9]+epsilon, rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9]-epsilon, rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10]+epsilon, rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+			    Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10]-epsilon, rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11]+epsilon, 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));	
+	tempPe2 = ((matrix(rotations[9], rotations[10], rotations[11]-epsilon, 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
+			   (matrix(rotations[3], rotations[4], rotations[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
+				matrix(rotations[0], rotations[1], rotations[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
+				Vector4(0, 0, 0, 1));
+	retVector.push_back((tempPe1.sub(tempPe2)).scale(1/(2*epsilon)));
+	return retVector;
+}
+
 void generateFrames() {
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
@@ -255,7 +394,7 @@ void generateFrames() {
 			                        rotations[9], rotations[10], rotations[11]};
 		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
 		double prevDist = INFINITY;
-		double alpha = .5;
+		double alpha = 1;
 		Vector4 Pe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
@@ -269,7 +408,7 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			if (currDist <= errorBound || (abs(prevDist - currDist) < 100 && iterations != 0 && alpha < 1000)) {
+			if (currDist <= errorBound || (iterations != 0 && alpha < pow(10, -6))) {
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist >= prevDist) {
@@ -292,8 +431,8 @@ void generateFrames() {
 
 			Vector4 p4 = r4.multiplyv(Vector4(length[3], 0, 0, 1));
 
-			Vector4 preCross1 = x3.multiplymRet(x2.multiplymRet(x1)).multiplyv(p4);
-			Vector4 preCross2 = x3.multiplymRet(x2).multiplyv(p4);
+			Vector4 preCross1 = x1.multiplymRet(x2.multiplymRet(x3)).multiplyv(p4);
+			Vector4 preCross2 = x2.multiplymRet(x3).multiplyv(p4);
 			Vector4 preCross3 = x3.multiplyv(p4);
 			Vector4 preCross4 = p4;
 
@@ -306,7 +445,7 @@ void generateFrames() {
 			matrix nJ2 = r1.multiplymRet(cross2);
 			matrix nJ3 = r2.multiplymRet(r1).multiplymRet(cross3);
 			matrix nJ4 = r3.multiplymRet(r2.multiplymRet(r1)).multiplymRet(cross4);
-
+            
 			Eigen::MatrixXf jacobian(3, 12);
 			jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
 						-nJ2.getValue(0, 0), -nJ2.getValue(1, 0), -nJ2.getValue(2, 0),
@@ -320,8 +459,14 @@ void generateFrames() {
 						-nJ2.getValue(0, 2), -nJ2.getValue(1, 2), -nJ2.getValue(2, 2),
 						-nJ3.getValue(0, 2), -nJ3.getValue(1, 2), -nJ3.getValue(2, 2),
 						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);
-			Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeFullU | Eigen::ComputeFullV);
-			Eigen::MatrixXf uMat = (svd.matrixU()).transpose();
+            Eigen::VectorXf dp(3,1);
+            dp <<   alpha*(goal[0] - tempPe.xc()), 
+                    alpha*(goal[1] - tempPe.yc()), 
+                    alpha*(goal[2] - tempPe.zc());
+			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
+            Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
+
+			/*Eigen::MatrixXf uMat = (svd.matrixU()).transpose();
 			Eigen::MatrixXf vMat = svd.matrixV();
 			Eigen::MatrixXf sMat(12, 3);
 			Eigen::VectorXf sValues = svd.singularValues();
@@ -347,9 +492,9 @@ void generateFrames() {
 			Eigen::MatrixXf pseudoInverse = vMat*sMat*uMat;
 			Eigen::VectorXf input(3);
 			input << alpha * (goal[0]-Pe.xc()), alpha * (goal[1]-Pe.yc()), alpha * (goal[2]-Pe.zc());
-			Eigen::VectorXf result = pseudoInverse*input;
+			Eigen::VectorXf result = pseudoInverse*input;*/
 			for (int k=0; k<12; k++) {
-				rotationsTemp[k] = rotations[k] + result(k);
+				rotationsTemp[k] = rotations[k] + dr(k);
 			}
 			iterations++;
 		}

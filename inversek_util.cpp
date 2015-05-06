@@ -105,6 +105,10 @@ Vector4 Vector4::sub(Vector4 v) {
     return newV;
 }
 
+Vector4 Vector4::scale(double s) {
+    return Vector4(x*s, y*s, z*s, 0.0);
+}
+
 Vector4 Vector4::cross(Vector4 v) {
     return Vector4(y*v.zc()-z*v.yc(), -(x*v.zc()-z*v.xc()), x*v.yc()-y*v.xc(), 0);
 }
@@ -228,7 +232,7 @@ matrix::matrix(double a, double b, double c, int mtype) {
         mtrx.push_back(Vector4(0.0, 1.0, 0.0, b));
         mtrx.push_back(Vector4(0.0, 0.0, 1.0, c));
     } else if (mtype == 1) { // cross product
-        if (a!=0 && b!=0 && c!=0) {
+        if (a!=0 || b!=0 || c!=0) {
             Vector4 cross = Vector4(a, b, c, 0);
             cross.unit();
             double x = cross.xc();
@@ -238,12 +242,14 @@ matrix::matrix(double a, double b, double c, int mtype) {
             mtrx.push_back(Vector4(z, 0.0, -x, 0.0));
             mtrx.push_back(Vector4(-y, x, 0.0, 0.0));
         } else {
-            mtrx.push_back(Vector4(1, 0, 0, 0));
-            mtrx.push_back(Vector4(0, 1, 0, 0));
-            mtrx.push_back(Vector4(0, 0, 1, 0));
+            mtrx.push_back(Vector4());
+            mtrx.push_back(Vector4());
+            mtrx.push_back(Vector4());
+            mtrx.push_back(Vector4());
+            return;
         }
     } else if (mtype == 2) { //rotation
-        if (a!=0 && b!=0 && c!=0) {
+        if (a!=0 || b!=0 || c!=0) {
             double theta = pow(pow(a, 2) + pow(b, 2) + pow(c, 2), .5)*PI_rad;
             Vector4 rotation = Vector4(a, b, c, 0);
             rotation.unit();
