@@ -96,6 +96,10 @@ void Vector4::unit() {
     }
 }
 
+void Vector4::printVector4() {
+    cout << x << "\n" << y << "\n" << z << "\n" << w << "\n" << endl;
+}
+
 Vector4 Vector4::copy() {
     return Vector4(x, y, z, w);
 }
@@ -232,22 +236,9 @@ matrix::matrix(double a, double b, double c, int mtype) {
         mtrx.push_back(Vector4(0.0, 1.0, 0.0, b));
         mtrx.push_back(Vector4(0.0, 0.0, 1.0, c));
     } else if (mtype == 1) { // cross product
-        if (a!=0 || b!=0 || c!=0) {
-            Vector4 cross = Vector4(a, b, c, 0);
-            cross.unit();
-            double x = cross.xc();
-            double y = cross.yc();
-            double z = cross.zc();
-            mtrx.push_back(Vector4(0.0, -z, y, 0.0));
-            mtrx.push_back(Vector4(z, 0.0, -x, 0.0));
-            mtrx.push_back(Vector4(-y, x, 0.0, 0.0));
-        } else {
-            mtrx.push_back(Vector4());
-            mtrx.push_back(Vector4());
-            mtrx.push_back(Vector4());
-            mtrx.push_back(Vector4());
-            return;
-        }
+        mtrx.push_back(Vector4(0.0, -c, b, 0.0));
+        mtrx.push_back(Vector4(c, 0.0, -a, 0.0));
+        mtrx.push_back(Vector4(-b, a, 0.0, 0.0));
     } else if (mtype == 2) { //rotation
         if (a!=0 || b!=0 || c!=0) {
             double theta = pow(pow(a, 2) + pow(b, 2) + pow(c, 2), .5)*PI_rad;

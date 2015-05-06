@@ -16,6 +16,7 @@ class Vector4 {
         double wc();
         double dot4(Vector4 v);
         void unit();
+        void printVector4();
         Vector4 copy();
         Vector4 sub(Vector4 v);
         Vector4 scale(double s);
