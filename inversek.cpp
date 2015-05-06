@@ -387,12 +387,14 @@ void generateFrames() {
 		double rotations[12] = {beforeArm->rotation[0], beforeArm->rotation[1], beforeArm->rotation[2],
 							   a2->rotation[0], a2->rotation[1], a2->rotation[2],
 							   a3->rotation[0], a3->rotation[1], a3->rotation[2],
-							   a4->rotation[0], a4->rotation[1], a4->rotation[2]};
+							   a4->rotation[0], a4->rotation[1], a4->rotation[2]}; 
+        //double rotations[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 		double rotationsTemp[12] = {rotations[0], rotations[1], rotations[2], 
 			                        rotations[3], rotations[4], rotations[5],
 			                        rotations[6], rotations[7], rotations[8],
 			                        rotations[9], rotations[10], rotations[11]};
-		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
+		//double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
+        double length[4] = {1,2,3,4};
 		double prevDist = INFINITY;
 		double alpha = 1;
 		Vector4 Pe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
@@ -400,6 +402,7 @@ void generateFrames() {
 					 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
 					  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 					  Vector4(0, 0, 0, 1));
+
 		int iterations = 0;
 		while (true) {
 			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
@@ -440,6 +443,13 @@ void generateFrames() {
 			matrix cross2 = matrix(preCross2.xc(), preCross2.yc(), preCross2.zc(), 1);
 			matrix cross3 = matrix(preCross3.xc(), preCross3.yc(), preCross3.zc(), 1);
 			matrix cross4 = matrix(preCross4.xc(), preCross4.yc(), preCross4.zc(), 1);
+            cout << cross1.getValue(0,0) <<" " <<  cross1.getValue(0,1) << " " << cross1.getValue(0,2) << " cross1" <<endl;
+            cout << cross2.getValue(0,0) <<" " <<  cross2.getValue(0,1) << " " << cross2.getValue(0,2) << " cross2" <<endl;
+            cout << cross3.getValue(0,0) <<" " <<  cross3.getValue(0,1) << " " << cross3.getValue(0,2) << " cross3" <<endl;
+            cout << cross4.getValue(0,0) <<" " <<  cross4.getValue(0,1) << " " << cross1.getValue(0,2) << " cross4" <<endl;
+
+
+
 
 			matrix nJ1 = cross1;
 			matrix nJ2 = r1.multiplymRet(cross2);
@@ -462,9 +472,9 @@ void generateFrames() {
 			cout << jacobian << endl;
 			exit(0);
             Eigen::VectorXd dp(3,1);
-            dp <<   alpha*(goal[0] - tempPe.xc()), 
-                    alpha*(goal[1] - tempPe.yc()), 
-                    alpha*(goal[2] - tempPe.zc());
+            dp <<   alpha*(goal[0] - Pe.xc()), 
+                    alpha*(goal[1] - Pe.yc()), 
+                    alpha*(goal[2] - Pe.zc());
 			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
             Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
 
