@@ -194,6 +194,7 @@ void myDisplay() {
     	curFrame = (curFrame + frameStepSize) % frames.size();
     	counter = 0;
     }
+    cout << p4.xc() << ", " << p4.yc() << ", " << p4.zc() << endl;
     counter++;
 }
 
@@ -229,6 +230,8 @@ void replaceContents(double destination[12], double source[12]) {
 	}
 }
 
+vector<double> partial()
+
 void generateFrames() {
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
@@ -253,7 +256,7 @@ void generateFrames() {
 			                        rotations[9], rotations[10], rotations[11]};
 		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
 		double prevDist = INFINITY;
-		double alpha = .5;
+		double alpha = -1;
 		Vector4 Pe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
@@ -261,20 +264,21 @@ void generateFrames() {
 					  Vector4(0, 0, 0, 1));
 		int iterations = 0;
 		while (true) {
+			cout << alpha << " and " << pow(-10, -6) << endl;
 			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			if (currDist <= errorBound || (abs(prevDist - currDist) < .000001 && iterations != 0 && alpha < .0000001)) {
+			if (currDist <= errorBound || (iterations != 0 && alpha > -pow(10, -6))) {
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist >= prevDist) {
 				alpha = alpha / 2;
 			} else {
 				replaceContents(rotations, rotationsTemp);
-				alpha = 1;
+				alpha = -1;
 				prevDist = currDist;
 				Pe = tempPe;
 			}
