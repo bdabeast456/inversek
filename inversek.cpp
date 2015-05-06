@@ -135,7 +135,7 @@ void myReshape(int w, int h) {
 // function that does the actual drawing of stuff
 //***************************************************
 void myDisplay() {
-    cout << curFrame << endl;
+    //cout << curFrame << endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);               // clear the color buffer
 
     glMatrixMode(GL_MODELVIEW);                 // indicate we are specifying camera transformations
@@ -446,7 +446,7 @@ void generateFrames() {
 			matrix nJ3 = r2.multiplymRet(r1).multiplymRet(cross3);
 			matrix nJ4 = r3.multiplymRet(r2.multiplymRet(r1)).multiplymRet(cross4);
             
-			Eigen::MatrixXf jacobian(3, 12);
+			Eigen::MatrixXd jacobian(3, 12);
 			jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
 						-nJ2.getValue(0, 0), -nJ2.getValue(1, 0), -nJ2.getValue(2, 0),
 						-nJ3.getValue(0, 0), -nJ3.getValue(1, 0), -nJ3.getValue(2, 0),
@@ -459,7 +459,9 @@ void generateFrames() {
 						-nJ2.getValue(0, 2), -nJ2.getValue(1, 2), -nJ2.getValue(2, 2),
 						-nJ3.getValue(0, 2), -nJ3.getValue(1, 2), -nJ3.getValue(2, 2),
 						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);
-            Eigen::VectorXf dp(3,1);
+			cout << jacobian << endl;
+			exit(0);
+            Eigen::VectorXd dp(3,1);
             dp <<   alpha*(goal[0] - tempPe.xc()), 
                     alpha*(goal[1] - tempPe.yc()), 
                     alpha*(goal[2] - tempPe.zc());
