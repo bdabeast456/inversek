@@ -64,7 +64,7 @@ float numCurves = 0;
 int curFrame = 0;
 int frameStepSize = 0;
 int counter = 1;
-double ustep = .05;
+double ustep = .04;
 double errorBound = .00001; 
 double epsilon = 1e-9;
 vector<Bezier> curves;
@@ -135,13 +135,10 @@ void myReshape(int w, int h) {
 // function that does the actual drawing of stuff
 //***************************************************
 void myDisplay() {
-    //cout << curFrame << endl;
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);               // clear the color buffer
-
-    glMatrixMode(GL_MODELVIEW);                 // indicate we are specifying camera transformations
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);              
+    glMatrixMode(GL_MODELVIEW);                 
     glLoadIdentity();
     gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
-    // PUT GLBEGINS AND GLENDS HERE.
     glLineWidth(1.5); 
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
@@ -196,7 +193,6 @@ void myDisplay() {
     	curFrame = (curFrame + frameStepSize) % frames.size();
     	counter = 0;
     }
-    //cout << p4.xc() << ", " << p4.yc() << ", " << p4.zc() << endl;
     counter++;
 }
 
@@ -372,7 +368,6 @@ vector<Vector4> partial(double rotations[12], double length[4]) {
 void generateFrames() {
 	int steps = (int)(numCurves/ustep);
 	for (int i=0; i<steps; i++) {
-        cout << i*ustep << endl;
 		vector<double> goal = getEndPoint(i*ustep);
 		cout << "goal is: " << goal[0] << ", " << goal[1] << ", " << goal[2] << endl;
 		Arm* beforeArm;
@@ -411,7 +406,7 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			if (currDist <= errorBound || (iterations != 0 && alpha < pow(10, -6))) {
+			if (currDist <= errorBound || (iterations != 0 && alpha < pow(10, -10))) {
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist >= prevDist) {
@@ -561,18 +556,15 @@ int main(int argc, char *argv[]) {
      /*
      * INSERT PARSER HERE
      */
-    //cout << "s tart " << endl;
     const int MAX_CHARS_PER_LINE = 512;
     const int MAX_TOKENS_PER_LINE = 17;
     const char* const DELIMITER = " ";
-    //cout << "STUFF" << endl;
     string readFile;
     if (argc < 2) {
         cout << "No input file specified." << endl;
         exit(0);
     }
     string arg1 = string(argv[1]);
-    //string arg2 = string(argv[2]);
     if(strlen(arg1.c_str()) >= 4){
         string last4 = arg1.substr(strlen(arg1.c_str())-4,string::npos);
         if(last4 == ".bez"){
@@ -595,7 +587,6 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
     else{
-        //cout << "hello?" << endl;
         int lineNumber= 1;
         vector<int> patchNum; // when == 4, parse current set of patches into surfaces
         patchNum.push_back(0);
@@ -642,7 +633,6 @@ int main(int argc, char *argv[]) {
                     numCurves = atof(string(token[0]).c_str());
                 }
                 else{
-                    //cout << "assigning thing" << endl;
                     double totalPatch[4][3];
                     totalPatch[0][0] = atof(string(token[0]).c_str());
                     totalPatch[0][1] = atof(string(token[1]).c_str());
@@ -673,7 +663,7 @@ int main(int argc, char *argv[]) {
         } // end of while(!myFile.eof())
         
     } //end of parsing
-    cout << "done parsing" << endl;
+    cout << "Done parsing" << endl;
 
     generateFrames();
 
