@@ -429,6 +429,8 @@ void generateFrames() {
 			matrix x3 = r3.multiplymRet(matrix(length[2], 0, 0, 0));
 			matrix x4 = r4.multiplymRet(matrix(length[3], 0, 0, 0));
 
+			x4.printMatrix();
+
 			Vector4 p4 = r4.multiplyv(Vector4(length[3], 0, 0, 1));
 
 			Vector4 preCross1 = x1.multiplymRet(x2.multiplymRet(x3)).multiplyv(p4);
@@ -446,6 +448,8 @@ void generateFrames() {
 			matrix nJ3 = r2.multiplymRet(r1).multiplymRet(cross3);
 			matrix nJ4 = r3.multiplymRet(r2.multiplymRet(r1)).multiplymRet(cross4);
             
+			nJ1.printMatrix();
+
 			Eigen::MatrixXd jacobian(3, 12);
 			jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
 						-nJ2.getValue(0, 0), -nJ2.getValue(1, 0), -nJ2.getValue(2, 0),
@@ -462,9 +466,9 @@ void generateFrames() {
 			cout << jacobian << endl;
 			exit(0);
             Eigen::VectorXd dp(3,1);
-            dp <<   alpha*(goal[0] - tempPe.xc()), 
-                    alpha*(goal[1] - tempPe.yc()), 
-                    alpha*(goal[2] - tempPe.zc());
+            dp <<   alpha*(goal[0] - Pe.xc()), 
+                    alpha*(goal[1] - Pe.yc()), 
+                    alpha*(goal[2] - Pe.zc());
 			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
             Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
 
