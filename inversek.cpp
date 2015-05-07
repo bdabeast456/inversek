@@ -138,7 +138,7 @@ void myDisplay() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);              
     glMatrixMode(GL_MODELVIEW);                 
     glLoadIdentity();
-    gluLookAt(0, 0, 10, 0, 0, 0, 0, 1, 0);
+    gluLookAt(10, 10, 10, 0, 0, 0, -1, -1, 1);
     glLineWidth(1.5); 
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
@@ -185,6 +185,19 @@ void myDisplay() {
 	glVertex3f(p4.xc(), p4.yc(), p4.zc());
 
     glEnd();
+
+    glPushMatrix();
+    glTranslatef(frames[curFrame]->point[0], frames[curFrame]->point[1], frames[curFrame]->point[2]);
+   	glBegin(GL_LINES);
+   	glColor3f(0.0f, 1.0f, 0.0f);
+   	GLUquadric *quad;
+   	GLdouble radius = 0.2;
+   	GLint slices, stacks;
+   	quad = gluNewQuadric();
+   	slices = stacks = 10;
+   	gluSphere(quad, radius, slices, stacks);
+   	glPopMatrix();
+   	glEnd();
          
     glFlush();
     glutSwapBuffers();                  // swap buffers (we earlier set double buffer)
@@ -406,15 +419,13 @@ void generateFrames() {
 			                        rotations[6], rotations[7], rotations[8],
 			                        rotations[9], rotations[10], rotations[11]};*/
 		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
-        //double length[4] = {1,2,3,4};
-	    double alpha = 1;
+		double alpha = 1;
 		Vector4 Pe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
 					  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 					  Vector4(0, 0, 0, 1));
-        double prevDist = distance(Pe.xc(),Pe.yc(),Pe.zc(),goal);
-
+		double prevDist = distance(Pe.xc(), Pe.yc(), Pe.zc(), goal);
 		int iterations = 0;
 		while (true) {
 			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
@@ -423,10 +434,8 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-            //cout << currDist << endl;
-		    if (currDist <= errorBound) {
-		    	cout << "WOOT" << endl;
-		    }
+			cout << currDist << endl;
+			
 			if (currDist <= errorBound || alpha < errorBound) {
 				//replaceContents(rotations, rotationsTemp);
 				rotations = rotationsTemp;
@@ -441,13 +450,21 @@ void generateFrames() {
 				alpha = 1;
 				prevDist = currDist;
 				Pe = tempPe;
-				//Pe.printVector4();
 			}
 			matrix r1 = matrix(rotations[0], rotations[1], rotations[2], 2);
 			matrix r2 = matrix(rotations[3], rotations[4], rotations[5], 2);
 			matrix r3 = matrix(rotations[6], rotations[7], rotations[8], 2);
 			matrix r4 = matrix(rotations[9], rotations[10], rotations[11], 2);
 
+
+
+			if (iterations==100) {
+				r1.printMatrix();
+				r2.printMatrix();
+				r3.printMatrix();
+				r4.printMatrix();
+				//exit(0);
+			}
 			matrix x1 = r1.multiplymRet(matrix(length[0], 0, 0, 0));
 			matrix x2 = r2.multiplymRet(matrix(length[1], 0, 0, 0));
 			matrix x3 = r3.multiplymRet(matrix(length[2], 0, 0, 0));
@@ -493,9 +510,9 @@ void generateFrames() {
 						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);
 
             Eigen::VectorXd dp(3,1);
-            dp <<   alpha*(goal[0] - Pe.xc()), 
-                    alpha*(goal[1] - Pe.yc()), 
-                    alpha*(goal[2] - Pe.zc());
+            dp <<   alpha*(goal[0] - tempPe.xc()), 
+                    alpha*(goal[1] - tempPe.yc()), 
+                    alpha*(goal[2] - tempPe.zc());
 			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
             Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
 			for (int k=0; k<12; k++) {

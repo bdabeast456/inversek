@@ -240,27 +240,33 @@ matrix::matrix(double a, double b, double c, int mtype) {
         mtrx.push_back(Vector4(c, 0.0, -a, 0.0));
         mtrx.push_back(Vector4(-b, a, 0.0, 0.0));
     } else if (mtype == 2) { //rotation
+        double theta = pow(pow(a, 2) + pow(b, 2) + pow(c, 2), .5)*PI_rad;
+        double s = sin(theta);
+        double c = (1-cos(theta));
+        double x, y, z;
         if (a!=0 || b!=0 || c!=0) {
-            double theta = pow(pow(a, 2) + pow(b, 2) + pow(c, 2), .5)*PI_rad;
             Vector4 rotation = Vector4(a, b, c, 0);
             rotation.unit();
-            double x = rotation.xc();
-            double y = rotation.yc();
-            double z = rotation.zc();
-            mtrx.push_back(Vector4(pow(x, 2)+(pow(z, 2)+pow(y, 2))*cos(theta),
-                        x*y-z*sin(theta)-x*y*cos(theta),
-                        x*z+y*sin(theta)-x*z*cos(theta), 0.0));
-            mtrx.push_back(Vector4(x*y+z*sin(theta)-x*y*cos(theta),
-                        pow(y, 2)+(pow(x, 2)+pow(z, 2))*cos(theta),
-                        y*z-x*sin(theta)-y*z*cos(theta), 0.0));
-            mtrx.push_back(Vector4(x*z-y*sin(theta)-x*z*cos(theta),
-                        y*z+x*sin(theta)-z*y*cos(theta),
-                        pow(z, 2)+(pow(x, 2)+pow(y, 2))*cos(theta), 0.0));
+            x = rotation.xc();
+            y = rotation.yc();
+            z = rotation.zc();
         } else {
-            mtrx.push_back(Vector4(1, 0, 0, 0));
-            mtrx.push_back(Vector4(0, 1, 0, 0));
-            mtrx.push_back(Vector4(0, 0, 1, 0));
+            x = 0;
+            y = 0;
+            z = 0;
         }
+        /*mtrx.push_back(Vector4(pow(x, 2)+(pow(z, 2)+pow(y, 2))*cos(theta),
+                    x*y-z*sin(theta)-x*y*cos(theta),
+                    x*z+y*sin(theta)-x*z*cos(theta), 0.0));
+        mtrx.push_back(Vector4(x*y+z*sin(theta)-x*y*cos(theta),
+                    pow(y, 2)+(pow(x, 2)+pow(z, 2))*cos(theta),
+                    y*z-x*sin(theta)-y*z*cos(theta), 0.0));
+        mtrx.push_back(Vector4(x*z-y*sin(theta)-x*z*cos(theta),
+                    y*z+x*sin(theta)-z*y*cos(theta),
+                    pow(z, 2)+(pow(x, 2)+pow(y, 2))*cos(theta), 0.0));*/
+        mtrx.push_back(Vector4(1+c*(-pow(z, 2)-pow(y, 2)), s*-z+c*(x*y), s*y+c*(x*z), 0.0));
+        mtrx.push_back(Vector4(s*z+c*(x*y), 1+c*(-pow(z, 2)-pow(x, 2)), s*-x+c*(y*z), 0.0));
+        mtrx.push_back(Vector4(s*-y+c*(x*z), s*x+c*(y*z), 1+c*(-pow(x, 2)-pow(y, 2)), 0.0));
     }
     mtrx.push_back(Vector4(0.0, 0.0, 0.0, 1.0));
 }
