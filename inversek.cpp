@@ -65,7 +65,7 @@ int curFrame = 0;
 int frameStepSize = 0;
 int counter = 1;
 double ustep = .05;
-double errorBound = 1e-6; 
+double errorBound = 1e-2; 
 double epsilon = 1e-9;
 vector<Bezier> curves;
 vector<Scene*> frames;
@@ -407,13 +407,12 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
+            cout << currDist << endl;
 		    if (currDist <= errorBound) {
-		    	cout << "\n\n\n\n" << "K" << "\n\n\n\n" << endl;
+		    	//cout << "\n\n\n\n" << "K" << "\n\n\n\n" << endl;
 		    }
-			if (currDist <= errorBound || alpha < pow(10,-40)) {
-                cout << currDist << endl;
-                exit(0);
-
+			if (currDist <= errorBound || alpha < pow(10,-20)) {
+                //exit(0);
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist >= prevDist) {
@@ -445,13 +444,10 @@ void generateFrames() {
 			matrix cross2 = matrix(preCross2.xc(), preCross2.yc(), preCross2.zc(), 1);
 			matrix cross3 = matrix(preCross3.xc(), preCross3.yc(), preCross3.zc(), 1);
 			matrix cross4 = matrix(preCross4.xc(), preCross4.yc(), preCross4.zc(), 1);
-            //cout << cross1.getValue(0,0) <<" " <<  cross1.getValue(0,1) << " " << cross1.getValue(0,2) << " cross1" <<endl;
-            //cout << cross2.getValue(0,0) <<" " <<  cross2.getValue(0,1) << " " << cross2.getValue(0,2) << " cross2" <<endl;
-            //cout << cross3.getValue(0,0) <<" " <<  cross3.getValue(0,1) << " " << cross3.getValue(0,2) << " cross3" <<endl;
-            //cout << cross4.getValue(0,0) <<" " <<  cross4.getValue(0,1) << " " << cross1.getValue(0,2) << " cross4" <<endl;
-
-
-
+            cout << cross1.getValue(0,0) <<" " <<  cross1.getValue(0,1) << " " << cross1.getValue(0,2) << " cross1" <<endl;
+            cout << cross2.getValue(0,0) <<" " <<  cross2.getValue(0,1) << " " << cross2.getValue(0,2) << " cross2" <<endl;
+            cout << cross3.getValue(0,0) <<" " <<  cross3.getValue(0,1) << " " << cross3.getValue(0,2) << " cross3" <<endl;
+            cout << cross4.getValue(0,0) <<" " <<  cross4.getValue(0,1) << " " << cross1.getValue(0,2) << " cross4" <<endl;
 
 			matrix nJ1 = cross1;
 			matrix nJ2 = r1.multiplymRet(cross2);
@@ -471,9 +467,7 @@ void generateFrames() {
 						-nJ2.getValue(0, 2), -nJ2.getValue(1, 2), -nJ2.getValue(2, 2),
 						-nJ3.getValue(0, 2), -nJ3.getValue(1, 2), -nJ3.getValue(2, 2),
 						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);
-			//cout << jacobian << endl;
 
-			//exit(0);
             Eigen::VectorXd dp(3,1);
             dp <<   alpha*(goal[0] - Pe.xc()), 
                     alpha*(goal[1] - Pe.yc()), 
@@ -481,7 +475,7 @@ void generateFrames() {
 			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
             Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
 			for (int k=0; k<12; k++) {
-				rotationsTemp[k] = rotationsTemp[k] + dr(k);
+				rotationsTemp[k] = rotations[k] + dr(k);
 			}
 			iterations++;
 		}
