@@ -241,8 +241,8 @@ matrix::matrix(double a, double b, double c, int mtype) {
         mtrx.push_back(Vector4(-b, a, 0.0, 0.0));
     } else if (mtype == 2) { //rotation
         double theta = pow(pow(a, 2) + pow(b, 2) + pow(c, 2), .5)*PI_rad;
-        double s = sin(theta);
-        double c = (1-cos(theta));
+        //double s = sin(theta);
+        //double c = (1-cos(theta));
         double x, y, z;
         if (a!=0 || b!=0 || c!=0) {
             Vector4 rotation = Vector4(a, b, c, 0);
@@ -264,9 +264,12 @@ matrix::matrix(double a, double b, double c, int mtype) {
         mtrx.push_back(Vector4(x*z-y*sin(theta)-x*z*cos(theta),
                     y*z+x*sin(theta)-z*y*cos(theta),
                     pow(z, 2)+(pow(x, 2)+pow(y, 2))*cos(theta), 0.0));*/
-        mtrx.push_back(Vector4(1+c*(-pow(z, 2)-pow(y, 2)), s*-z+c*(x*y), s*y+c*(x*z), 0.0));
+        /*mtrx.push_back(Vector4(1+c*(-pow(z, 2)-pow(y, 2)), s*-z+c*(x*y), s*y+c*(x*z), 0.0));
         mtrx.push_back(Vector4(s*z+c*(x*y), 1+c*(-pow(z, 2)-pow(x, 2)), s*-x+c*(y*z), 0.0));
-        mtrx.push_back(Vector4(s*-y+c*(x*z), s*x+c*(y*z), 1+c*(-pow(x, 2)-pow(y, 2)), 0.0));
+        mtrx.push_back(Vector4(s*-y+c*(x*z), s*x+c*(y*z), 1+c*(-pow(x, 2)-pow(y, 2)), 0.0));*/
+        mtrx.push_back(Vector4(cos(theta)+pow(x, 2)*(1-cos(theta)), x*y*(1-cos(theta))-z*sin(theta), y*sin(theta)+x*z*(1-cos(theta)), 0.0));
+        mtrx.push_back(Vector4(z*sin(theta)+x*y*(1-cos(theta)), cos(theta)+pow(y, 2)*(1-cos(theta)), -x*sin(theta)+y*z*(1-cos(theta)), 0.0));
+        mtrx.push_back(Vector4(-y*sin(theta)+x*z*(1-cos(theta)), x*sin(theta)+y*z*(1-cos(theta)), cos(theta)+pow(z, 2)*(1-cos(theta)), 0.0));
     }
     mtrx.push_back(Vector4(0.0, 0.0, 0.0, 1.0));
 }
