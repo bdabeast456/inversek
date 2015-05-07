@@ -120,13 +120,13 @@ Vector4 Vector4::cross(Vector4 v) {
 
 
 Arm::Arm(){
-    length = 5.0;
+    length = 1.0;
     rotation.push_back(0.0);
     rotation.push_back(0.0);
     rotation.push_back(0.0);
     Arm* a2 = new Arm(2);
-    Arm* a3 = new Arm(1);
-    Arm* a4 = new Arm(6);
+    Arm* a3 = new Arm(3);
+    Arm* a4 = new Arm(1);
     nextArm = a2;
     a2->setNext(a3);
     a3->setNext(a4);

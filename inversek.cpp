@@ -406,7 +406,10 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			if (currDist <= errorBound || (iterations != 0 && alpha < pow(10, -10))) {
+            cout << currDist << endl;
+			if (currDist <= errorBound || (iterations != 0 && alpha < pow(10, -20))) {
+                cout << currDist << endl;
+                cout << alpha << " alpha" << endl; 
 				replaceContents(rotations, rotationsTemp);
 				break;
 			} else if (currDist >= prevDist) {
@@ -472,39 +475,13 @@ void generateFrames() {
                     alpha*(goal[2] - Pe.zc());
 			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
             Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
-
-			/*Eigen::MatrixXf uMat = (svd.matrixU()).transpose();
-			Eigen::MatrixXf vMat = svd.matrixV();
-			Eigen::MatrixXf sMat(12, 3);
-			Eigen::VectorXf sValues = svd.singularValues();
-			for (int j=0; j<3; j++) {
-				if (sValues(j) > errorBound) {
-					sValues(j) = 1.0/sValues(j);
-				} else {
-					sValues(j) = 0.0;
-				}
-			}
-			sMat << sValues(0), 0.0, 0.0,
-				    0.0, sValues(1), 0.0,
-				    0.0, 0.0, sValues(2),
-				    0.0, 0.0, 0.0,
-				    0.0, 0.0, 0.0,
-				    0.0, 0.0, 0.0,
-				    0.0, 0.0, 0.0,
-				    0.0, 0.0, 0.0,
-				    0.0, 0.0, 0.0,
-				    0.0, 0.0, 0.0,
-				    0.0, 0.0, 0.0,
-				    0.0, 0.0, 0.0;
-			Eigen::MatrixXf pseudoInverse = vMat*sMat*uMat;
-			Eigen::VectorXf input(3);
-			input << alpha * (goal[0]-Pe.xc()), alpha * (goal[1]-Pe.yc()), alpha * (goal[2]-Pe.zc());
-			Eigen::VectorXf result = pseudoInverse*input;*/
 			for (int k=0; k<12; k++) {
-				rotationsTemp[k] = rotations[k] + dr(k);
+				rotationsTemp[k] = rotationsTemp[k] + dr(k);
 			}
 			iterations++;
 		}
+        cout << endl;
+        cout << endl;
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
 		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
