@@ -193,7 +193,6 @@ void myDisplay() {
     	curFrame = (curFrame + frameStepSize) % frames.size();
     	counter = 0;
     }
-    p4.printVector4();
     counter++;
 }
 
@@ -223,7 +222,7 @@ double distance(double x, double y, double z, vector<double> point2) {
 	return pow(pow(x-point2[0], 2)+pow(y-point2[1], 2)+pow(z-point2[2], 2), .5);
 }
 
-void replaceContents(double destination[12], double source[12]) {
+void replaceContents(vector<double> destination, vector<double> source) {
 	for (int i=0; i<12; i++) {
 		destination[i] = source[i];
 	}
@@ -380,7 +379,24 @@ void generateFrames() {
 		Arm* a2 = beforeArm->getNext();
 		Arm* a3 = a2->getNext();
 		Arm* a4 = a3->getNext();
-		double rotations[12] = {beforeArm->rotation[0], beforeArm->rotation[1], beforeArm->rotation[2],
+		vector<double> rotations;
+		vector<double> rotationsTemp;
+		rotations.push_back(beforeArm->rotation[0]);
+		rotations.push_back(beforeArm->rotation[1]);
+		rotations.push_back(beforeArm->rotation[2]);
+		rotations.push_back(a2->rotation[0]);
+		rotations.push_back(a2->rotation[1]);
+		rotations.push_back(a2->rotation[2]);
+		rotations.push_back(a3->rotation[0]);
+		rotations.push_back(a3->rotation[1]);
+		rotations.push_back(a3->rotation[2]);
+		rotations.push_back(a4->rotation[0]);
+		rotations.push_back(a4->rotation[1]);
+		rotations.push_back(a4->rotation[2]);
+		for (int j=0; j<12; j++) {
+			rotationsTemp.push_back(rotations[j]);
+		}
+		/*double rotations[12] = {beforeArm->rotation[0], beforeArm->rotation[1], beforeArm->rotation[2],
 							   a2->rotation[0], a2->rotation[1], a2->rotation[2],
 							   a3->rotation[0], a3->rotation[1], a3->rotation[2],
 							   a4->rotation[0], a4->rotation[1], a4->rotation[2]}; 
@@ -388,16 +404,16 @@ void generateFrames() {
 		double rotationsTemp[12] = {rotations[0], rotations[1], rotations[2], 
 			                        rotations[3], rotations[4], rotations[5],
 			                        rotations[6], rotations[7], rotations[8],
-			                        rotations[9], rotations[10], rotations[11]};
+			                        rotations[9], rotations[10], rotations[11]};*/
 		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
         //double length[4] = {1,2,3,4};
-		double prevDist = INFINITY;
-		double alpha = 1;
+	    double alpha = 1;
 		Vector4 Pe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 					 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
 					  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 					  Vector4(0, 0, 0, 1));
+        double prevDist = distance(Pe.xc(),Pe.yc(),Pe.zc(),goal);
 
 		int iterations = 0;
 		while (true) {
@@ -407,21 +423,25 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-            cout << currDist << endl;
+            //cout << currDist << endl;
 		    if (currDist <= errorBound) {
-		    	//cout << "\n\n\n\n" << "K" << "\n\n\n\n" << endl;
+		    	cout << "WOOT" << endl;
 		    }
-			if (currDist <= errorBound || alpha < pow(10,-20)) {
-                //exit(0);
-				replaceContents(rotations, rotationsTemp);
+			if (currDist <= errorBound || alpha < errorBound) {
+				//replaceContents(rotations, rotationsTemp);
+				rotations = rotationsTemp;
 				break;
 			} else if (currDist >= prevDist) {
+                //rotations = rotationsTemp;
 				alpha = alpha / 2;
 			} else {
-				replaceContents(rotations, rotationsTemp);
+				//replaceContents(rotations, rotationsTemp);
+                cout << "assigned?!" << endl;
+				rotations = rotationsTemp;
 				alpha = 1;
 				prevDist = currDist;
 				Pe = tempPe;
+				//Pe.printVector4();
 			}
 			matrix r1 = matrix(rotations[0], rotations[1], rotations[2], 2);
 			matrix r2 = matrix(rotations[3], rotations[4], rotations[5], 2);
@@ -431,9 +451,13 @@ void generateFrames() {
 			matrix x1 = r1.multiplymRet(matrix(length[0], 0, 0, 0));
 			matrix x2 = r2.multiplymRet(matrix(length[1], 0, 0, 0));
 			matrix x3 = r3.multiplymRet(matrix(length[2], 0, 0, 0));
-			matrix x4 = r4.multiplymRet(matrix(length[3], 0, 0, 0));
+			//matrix x4 = r4.multiplymRet(matrix(length[3], 0, 0, 0));
 
 			Vector4 p4 = r4.multiplyv(Vector4(length[3], 0, 0, 1));
+            //cout << p4.printVector << endl;
+            cout << "~~~~" << endl;
+            p4.printVector4();
+            //cout << "~~~~" << endl;
 
 			Vector4 preCross1 = x1.multiplymRet(x2.multiplymRet(x3)).multiplyv(p4);
 			Vector4 preCross2 = x2.multiplymRet(x3).multiplyv(p4);
@@ -444,15 +468,15 @@ void generateFrames() {
 			matrix cross2 = matrix(preCross2.xc(), preCross2.yc(), preCross2.zc(), 1);
 			matrix cross3 = matrix(preCross3.xc(), preCross3.yc(), preCross3.zc(), 1);
 			matrix cross4 = matrix(preCross4.xc(), preCross4.yc(), preCross4.zc(), 1);
-            cout << cross1.getValue(0,0) <<" " <<  cross1.getValue(0,1) << " " << cross1.getValue(0,2) << " cross1" <<endl;
-            cout << cross2.getValue(0,0) <<" " <<  cross2.getValue(0,1) << " " << cross2.getValue(0,2) << " cross2" <<endl;
-            cout << cross3.getValue(0,0) <<" " <<  cross3.getValue(0,1) << " " << cross3.getValue(0,2) << " cross3" <<endl;
-            cout << cross4.getValue(0,0) <<" " <<  cross4.getValue(0,1) << " " << cross1.getValue(0,2) << " cross4" <<endl;
+            //cout << cross1.getValue(0,0) <<" " <<  cross1.getValue(0,1) << " " << cross1.getValue(0,2) << " cross1" <<endl;
+            //cout << cross2.getValue(0,0) <<" " <<  cross2.getValue(0,1) << " " << cross2.getValue(0,2) << " cross2" <<endl;
+            //cout << cross3.getValue(0,0) <<" " <<  cross3.getValue(0,1) << " " << cross3.getValue(0,2) << " cross3" <<endl;
+            //cout << cross4.getValue(0,0) <<" " <<  cross4.getValue(0,1) << " " << cross1.getValue(0,2) << " cross4" <<endl;
 
 			matrix nJ1 = cross1;
 			matrix nJ2 = r1.multiplymRet(cross2);
-			matrix nJ3 = r1.multiplymRet(r2).multiplymRet(cross3);
-			matrix nJ4 = r1.multiplymRet(r2.multiplymRet(r3)).multiplymRet(cross4);
+			matrix nJ3 = r2.multiplymRet(r1).multiplymRet(cross3);
+			matrix nJ4 = r3.multiplymRet(r2.multiplymRet(r1)).multiplymRet(cross4);
             
 			Eigen::MatrixXd jacobian(3, 12);
 			jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
@@ -479,7 +503,7 @@ void generateFrames() {
 			}
 			iterations++;
 		}
-        cout << endl;
+        //cout << endl;
         cout << endl;
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
