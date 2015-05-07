@@ -441,7 +441,7 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			cout << currDist << endl;
+			cout << prevDist << endl;
 			
 			if (currDist <= errorBound || alpha < errorBound) {
 				//replaceContents(rotations, rotationsTemp);
@@ -450,7 +450,7 @@ void generateFrames() {
 			} else if (currDist >= prevDist) {
                 //rotations = rotationsTemp;
 				alpha = alpha / 2;
-			} else {
+			} else  {
 				//replaceContents(rotations, rotationsTemp);
                 cout << "assigned?!" << endl;
 				rotations = rotationsTemp;
@@ -466,21 +466,20 @@ void generateFrames() {
 
 
 			if (iterations==100) {
-				r1.printMatrix();
-				r2.printMatrix();
-				r3.printMatrix();
-				r4.printMatrix();
+				//r1.printMatrix();
+				//r2.printMatrix();
+				//r3.printMatrix();
+				//r4.printMatrix();
 				//exit(0);
 			}
 			matrix x1 = r1.multiplymRet(matrix(length[0], 0, 0, 0));
 			matrix x2 = r2.multiplymRet(matrix(length[1], 0, 0, 0));
 			matrix x3 = r3.multiplymRet(matrix(length[2], 0, 0, 0));
-			//matrix x4 = r4.multiplymRet(matrix(length[3], 0, 0, 0));
 
 			Vector4 p4 = r4.multiplyv(Vector4(length[3], 0, 0, 1));
             //cout << p4.printVector << endl;
-            cout << "~~~~" << endl;
-            p4.printVector4();
+            //cout << "~~~~" << endl;
+            //p4.printVector4();
             //cout << "~~~~" << endl;
 
 			Vector4 preCross1 = x1.multiplymRet(x2.multiplymRet(x3)).multiplyv(p4);
