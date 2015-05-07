@@ -242,12 +242,6 @@ double distance(double x, double y, double z, vector<double> point2) {
 	return pow(pow(x-point2[0], 2)+pow(y-point2[1], 2)+pow(z-point2[2], 2), .5);
 }
 
-void replaceContents(vector<double> destination, vector<double> source) {
-	for (int i=0; i<12; i++) {
-		destination[i] = source[i];
-	}
-}
-
 vector<Vector4> partial(double rotations[12], double length[4]) {
 	vector<Vector4> retVector;
 	Vector4 tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
@@ -475,10 +469,6 @@ void generateFrames() {
 			matrix cross2 = matrix(preCross2.xc(), preCross2.yc(), preCross2.zc(), 1);
 			matrix cross3 = matrix(preCross3.xc(), preCross3.yc(), preCross3.zc(), 1);
 			matrix cross4 = matrix(preCross4.xc(), preCross4.yc(), preCross4.zc(), 1);
-            //cout << cross1.getValue(0,0) <<" " <<  cross1.getValue(0,1) << " " << cross1.getValue(0,2) << " cross1" <<endl;
-            //cout << cross2.getValue(0,0) <<" " <<  cross2.getValue(0,1) << " " << cross2.getValue(0,2) << " cross2" <<endl;
-            //cout << cross3.getValue(0,0) <<" " <<  cross3.getValue(0,1) << " " << cross3.getValue(0,2) << " cross3" <<endl;
-            //cout << cross4.getValue(0,0) <<" " <<  cross4.getValue(0,1) << " " << cross1.getValue(0,2) << " cross4" <<endl;
 
 			matrix nJ1 = cross1;
 			matrix nJ2 = r1.multiplymRet(cross2);
@@ -505,6 +495,7 @@ void generateFrames() {
                     alpha*(goal[2] - Pe.zc());
 			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
             Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
+            //cout << "\n\n" << dr << "\n\n" << endl;
 			for (int k=0; k<12; k++) {
 				rotationsTemp[k] = rotations[k] + dr(k);
 			}
