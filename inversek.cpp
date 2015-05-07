@@ -138,7 +138,7 @@ void myDisplay() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);              
     glMatrixMode(GL_MODELVIEW);                 
     glLoadIdentity();
-    gluLookAt(10, 10, 10, 0, 0, 0, -1, -1, 1);
+    gluLookAt(10, 10, 10, 0, 0, 0, -1, 1, -1);
     glLineWidth(1.5); 
     glColor3f(1.0, 0.0, 0.0);
     glBegin(GL_LINES);
@@ -186,6 +186,13 @@ void myDisplay() {
 
     glEnd();
 
+    glBegin(GL_QUADS);
+    glColor3f(0.2f, 0.2f, 0.2f);
+    glVertex3f(8.0f, -4.0f, -8.0f);
+    glVertex3f(-8.0f, -4.0f, -8.0f);
+    glVertex3f(-8.0f, -4.0f, 8.0f);
+    glVertex3f(8.0f, -4.0f, 8.0f);
+    glEnd();
     glPushMatrix();
     glTranslatef(frames[curFrame]->point[0], frames[curFrame]->point[1], frames[curFrame]->point[2]);
    	glBegin(GL_LINES);
