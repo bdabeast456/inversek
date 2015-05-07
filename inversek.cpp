@@ -444,14 +444,11 @@ void generateFrames() {
 			cout << prevDist << endl;
 			
 			if (currDist <= errorBound || alpha < errorBound) {
-				//replaceContents(rotations, rotationsTemp);
 				rotations = rotationsTemp;
 				break;
 			} else if (currDist >= prevDist) {
-                //rotations = rotationsTemp;
 				alpha = alpha / 2;
-			} else  {
-				//replaceContents(rotations, rotationsTemp);
+			} else {
                 cout << "assigned?!" << endl;
 				rotations = rotationsTemp;
 				alpha = 1;
@@ -463,24 +460,11 @@ void generateFrames() {
 			matrix r3 = matrix(rotations[6], rotations[7], rotations[8], 2);
 			matrix r4 = matrix(rotations[9], rotations[10], rotations[11], 2);
 
-
-
-			if (iterations==100) {
-				//r1.printMatrix();
-				//r2.printMatrix();
-				//r3.printMatrix();
-				//r4.printMatrix();
-				//exit(0);
-			}
 			matrix x1 = r1.multiplymRet(matrix(length[0], 0, 0, 0));
 			matrix x2 = r2.multiplymRet(matrix(length[1], 0, 0, 0));
 			matrix x3 = r3.multiplymRet(matrix(length[2], 0, 0, 0));
 
 			Vector4 p4 = r4.multiplyv(Vector4(length[3], 0, 0, 1));
-            //cout << p4.printVector << endl;
-            //cout << "~~~~" << endl;
-            //p4.printVector4();
-            //cout << "~~~~" << endl;
 
 			Vector4 preCross1 = x1.multiplymRet(x2.multiplymRet(x3)).multiplyv(p4);
 			Vector4 preCross2 = x2.multiplymRet(x3).multiplyv(p4);
