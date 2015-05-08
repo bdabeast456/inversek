@@ -65,7 +65,8 @@ int curFrame = 0;
 int frameStepSize = 0;
 int counter = 1;
 double ustep = .05;
-double errorBound = 1e-6; 
+double errorBound = 1e-9; 
+double sError = 1e-4;
 double epsilon = 1e-9;
 vector<Bezier> curves;
 vector<Scene*> frames;
@@ -155,7 +156,7 @@ void myDisplay() {
     Arm a4 = *(a3.getNext());
     matrix a4T = matrix(a4.rotation[0], a4.rotation[1], a4.rotation[2], 2).multiplymRet(
     		     matrix(a4.length, 0, 0, 0).multiplymRet(a3T));
-
+    cout << curArm.length << ", " << a2.length << ", " << a3.length << ", " << a4.length << endl;
     Vector4* start = new Vector4(0, 0, 0, 1);
     Vector4 p1 = rootT.multiplyv(*start);
     Vector4 p2 = a2T.multiplyv(*start);
@@ -419,17 +420,32 @@ void generateFrames() {
 					  Vector4(0, 0, 0, 1));
 		double prevDist = distance(Pe.xc(), Pe.yc(), Pe.zc(), goal);
 		int iterations = 0;
-		while (true) {
+		Eigen::VectorXd dr;
+        bool dontWhile = false;
+        if((beforeArm->length + a2->length + a3->length + a4->length) < distance(0,0,0,goal)){
+            dontWhile = true;
+            double rotXYPLANE = (1*goal[0] + 0*goal[1])/ (pow(pow(1,2) + pow(0,2),0.5) * pow(pow(goal[0],2) + pow(goal[1],2),0.5));
+            double rotXZPLANE = (1*goal[0] + 0*goal[2])/ (pow(pow(1,2) + pow(0,2),0.5) * pow(pow(goal[0],2) + pow(goal[2],2),0.5));
+            
+            matrix Z = matrix(0,0,rotXYPLANE,2);
+            matrix Y = matrix(0,rotXZPLANE,0,2);
+            matrix product = Z.multiplymRet(Y);
+            
+            
+        }
+		while (true && !dontWhile) {
 			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
-		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);			
+		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
+           			
 			if (currDist <= errorBound || alpha < errorBound) {
 				rotations = rotationsTemp;
 				break;
 			} else if (currDist >= prevDist) {
+				//cout << "\n\n" << dr << "\n\n" << endl;
 				alpha = alpha / 2;
 			} else {
 				rotations = rotationsTemp;
@@ -437,45 +453,7 @@ void generateFrames() {
 				prevDist = currDist;
 				Pe = tempPe;
 			}
-			matrix r1 = matrix(rotations[0], rotations[1], rotations[2], 2);
-			matrix r2 = matrix(rotations[3], rotations[4], rotations[5], 2);
-			matrix r3 = matrix(rotations[6], rotations[7], rotations[8], 2);
-			matrix r4 = matrix(rotations[9], rotations[10], rotations[11], 2);
-
-			matrix x1 = r1.multiplymRet(matrix(length[0], 0, 0, 0));
-			matrix x2 = r2.multiplymRet(matrix(length[1], 0, 0, 0));
-			matrix x3 = r3.multiplymRet(matrix(length[2], 0, 0, 0));
-
-			Vector4 p4 = r4.multiplyv(Vector4(length[3], 0, 0, 1));
-
-			Vector4 preCross1 = x1.multiplymRet(x2.multiplymRet(x3)).multiplyv(p4);
-			Vector4 preCross2 = x2.multiplymRet(x3).multiplyv(p4);
-			Vector4 preCross3 = x3.multiplyv(p4);
-			Vector4 preCross4 = p4;
-
-			matrix cross1 = matrix(preCross1.xc(), preCross1.yc(), preCross1.zc(), 1);
-			matrix cross2 = matrix(preCross2.xc(), preCross2.yc(), preCross2.zc(), 1);
-			matrix cross3 = matrix(preCross3.xc(), preCross3.yc(), preCross3.zc(), 1);
-			matrix cross4 = matrix(preCross4.xc(), preCross4.yc(), preCross4.zc(), 1);
-
-			matrix nJ1 = cross1;
-			matrix nJ2 = r1.multiplymRet(cross2);
-			matrix nJ3 = r2.multiplymRet(r1).multiplymRet(cross3);
-			matrix nJ4 = r3.multiplymRet(r2.multiplymRet(r1)).multiplymRet(cross4);
-            
 			Eigen::MatrixXd jacobian(3, 12);
-			/*jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
-						-nJ2.getValue(0, 0), -nJ2.getValue(1, 0), -nJ2.getValue(2, 0),
-						-nJ3.getValue(0, 0), -nJ3.getValue(1, 0), -nJ3.getValue(2, 0),
-						-nJ4.getValue(0, 0), -nJ4.getValue(1, 0), -nJ4.getValue(2, 0),
-						-nJ1.getValue(0, 1), -nJ1.getValue(1, 1), -nJ1.getValue(2, 1),
-						-nJ2.getValue(0, 1), -nJ2.getValue(1, 1), -nJ2.getValue(2, 1),
-						-nJ3.getValue(0, 1), -nJ3.getValue(1, 1), -nJ3.getValue(2, 1),
-						-nJ4.getValue(0, 1), -nJ4.getValue(1, 1), -nJ4.getValue(2, 1),
-						-nJ1.getValue(0, 2), -nJ1.getValue(1, 2), -nJ1.getValue(2, 2),
-						-nJ2.getValue(0, 2), -nJ2.getValue(1, 2), -nJ2.getValue(2, 2),
-						-nJ3.getValue(0, 2), -nJ3.getValue(1, 2), -nJ3.getValue(2, 2),
-						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);*/
 			vector<Vector4> p = partial(rotations, length);
 			jacobian << p[0].xc(), p[1].xc(), p[2].xc(), p[3].xc(), p[4].xc(), p[5].xc(),
 					    p[6].xc(), p[7].xc(), p[8].xc(), p[9].xc(),p[10].xc(),p[11].xc(),
@@ -484,15 +462,15 @@ void generateFrames() {
 					    p[0].zc(), p[1].zc(), p[2].zc(), p[3].zc(), p[4].zc(), p[5].zc(),
 					    p[6].zc(), p[7].zc(), p[8].zc(), p[9].zc(),p[10].zc(),p[11].zc();
             Eigen::VectorXd dp(3,1);
-            dp <<   alpha*(goal[0] - Pe.xc()), 
-                    alpha*(goal[1] - Pe.yc()), 
-                    alpha*(goal[2] - Pe.zc());
+            dp << alpha*(goal[0] - Pe.xc()), 
+                  alpha*(goal[1] - Pe.yc()), 
+                  alpha*(goal[2] - Pe.zc());
 			Eigen::JacobiSVD<Eigen::MatrixXd> svd(jacobian, Eigen::ComputeFullU | Eigen::ComputeFullV);
 			Eigen::MatrixXd uMat = svd.matrixU().transpose();
 			Eigen::MatrixXd vMat = svd.matrixV();
 			Eigen::VectorXd sVals = svd.singularValues();
 			for (int j=0; j<3; j++) {
-				if (sVals(j) > errorBound) {
+				if (abs(sVals(j)) > sError) {
 					sVals(j) = 1/sVals(j);
 				} else {
 					sVals(j) = 0;
@@ -511,12 +489,8 @@ void generateFrames() {
 					0, 0, 0,
 					0, 0, 0,
 					0, 0, 0;
-            //Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
 			Eigen::MatrixXd pseudoInverse = vMat*sMat*uMat;
-			/*cout << jacobian*pseudoInverse << endl;
-			exit(0);*/
-			Eigen::VectorXd dr = pseudoInverse*dp;
-            cout << dr(0) << " " << dr(1) << " " << dr(2) << endl;
+			dr = pseudoInverse*dp;
 			for (int k=0; k<12; k++) {
 				rotationsTemp[k] = rotations[k] + dr(k);
 			}
