@@ -242,7 +242,7 @@ double distance(double x, double y, double z, vector<double> point2) {
 	return pow(pow(x-point2[0], 2)+pow(y-point2[1], 2)+pow(z-point2[2], 2), .5);
 }
 
-vector<Vector4> partial(double rotations[12], double length[4]) {
+vector<Vector4> partial(vector<double> rotations, double length[4]) {
 	vector<Vector4> retVector;
 	Vector4 tempPe1 = ((matrix(rotations[9], rotations[10], rotations[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 			   		   (matrix(rotations[6], rotations[7], rotations[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
@@ -476,7 +476,7 @@ void generateFrames() {
 			matrix nJ4 = r3.multiplymRet(r2.multiplymRet(r1)).multiplymRet(cross4);
             
 			Eigen::MatrixXd jacobian(3, 12);
-			jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
+			/*jacobian << -nJ1.getValue(0, 0), -nJ1.getValue(1, 0), -nJ1.getValue(2, 0),
 						-nJ2.getValue(0, 0), -nJ2.getValue(1, 0), -nJ2.getValue(2, 0),
 						-nJ3.getValue(0, 0), -nJ3.getValue(1, 0), -nJ3.getValue(2, 0),
 						-nJ4.getValue(0, 0), -nJ4.getValue(1, 0), -nJ4.getValue(2, 0),
@@ -487,8 +487,14 @@ void generateFrames() {
 						-nJ1.getValue(0, 2), -nJ1.getValue(1, 2), -nJ1.getValue(2, 2),
 						-nJ2.getValue(0, 2), -nJ2.getValue(1, 2), -nJ2.getValue(2, 2),
 						-nJ3.getValue(0, 2), -nJ3.getValue(1, 2), -nJ3.getValue(2, 2),
-						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);
-
+						-nJ4.getValue(0, 2), -nJ4.getValue(1, 2), -nJ4.getValue(2, 2);*/
+			vector<Vector4> p = partial(rotations, length);
+			jacobian << p[0].xc(), p[1].xc(), p[2].xc(), p[3].xc(), p[4].xc(), p[5].xc(),
+					    p[6].xc(), p[7].xc(), p[8].xc(), p[9].xc(),p[10].xc(),p[11].xc(),
+					    p[0].yc(), p[1].yc(), p[2].yc(), p[3].yc(), p[4].yc(), p[5].yc(),
+					    p[6].yc(), p[7].yc(), p[8].yc(), p[9].yc(),p[10].yc(),p[11].yc(),
+					    p[0].zc(), p[1].zc(), p[2].zc(), p[3].zc(), p[4].zc(), p[5].zc(),
+					    p[6].zc(), p[7].zc(), p[8].zc(), p[9].zc(),p[10].zc(),p[11].zc();
             Eigen::VectorXd dp(3,1);
             dp <<   alpha*(goal[0] - Pe.xc()), 
                     alpha*(goal[1] - Pe.yc()), 
