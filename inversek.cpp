@@ -63,7 +63,7 @@ float numCurves = 0;
 int curFrame = 0;
 int frameStepSize = 0;
 int counter = 1;
-double ustep = .05;
+double ustep = .04;
 double errorBound = 1e-9; 
 double sError = 1e-4;
 double epsilon = 1e-9;
@@ -407,6 +407,11 @@ void generateFrames() {
 		rotations.push_back(a4->rotation[0]);
 		rotations.push_back(a4->rotation[1]);
 		rotations.push_back(a4->rotation[2]);
+		if (goal[0] == 0 && goal[1] == 0 && goal[2] == 0) {
+			for (int r=0; r<12; r++) {
+				rotations[r] = rotations[r] + .1;
+			}
+		}
 		for (int j=0; j<12; j++) {
 			rotationsTemp.push_back(rotations[j]);
 		}
