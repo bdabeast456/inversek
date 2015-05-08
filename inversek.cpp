@@ -65,7 +65,7 @@ int curFrame = 0;
 int frameStepSize = 0;
 int counter = 1;
 double ustep = .05;
-double errorBound = 1e-3; 
+double errorBound = 1e-6; 
 double epsilon = 1e-9;
 vector<Bezier> curves;
 vector<Scene*> frames;
@@ -425,16 +425,13 @@ void generateFrames() {
 						 (matrix(rotationsTemp[3], rotationsTemp[4], rotationsTemp[5], 2).multiplymRet(matrix(length[1], 0, 0, 0))).multiplymRet(
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
-		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			//cout << prevDist << endl;
-			
+		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);			
 			if (currDist <= errorBound || alpha < errorBound) {
 				rotations = rotationsTemp;
 				break;
 			} else if (currDist >= prevDist) {
 				alpha = alpha / 2;
 			} else {
-                cout << "assigned?!" << endl;
 				rotations = rotationsTemp;
 				alpha = 1;
 				prevDist = currDist;
@@ -490,15 +487,41 @@ void generateFrames() {
             dp <<   alpha*(goal[0] - Pe.xc()), 
                     alpha*(goal[1] - Pe.yc()), 
                     alpha*(goal[2] - Pe.zc());
-			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
-            Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
+			Eigen::JacobiSVD<Eigen::MatrixXd> svd(jacobian, Eigen::ComputeFullU | Eigen::ComputeFullV);
+			Eigen::MatrixXd uMat = svd.matrixU().transpose();
+			Eigen::MatrixXd vMat = svd.matrixV();
+			Eigen::VectorXd sVals = svd.singularValues();
+			for (int j=0; j<3; j++) {
+				if (sVals(j) > errorBound) {
+					sVals(j) = 1/sVals(j);
+				} else {
+					sVals(j) = 0;
+				}
+			}
+			Eigen::MatrixXd sMat(12, 3);
+			sMat << sVals(0), 0, 0,
+					0, sVals(1), 0,
+					0, 0, sVals(2),
+					0, 0, 0,
+					0, 0, 0,
+					0, 0, 0,
+					0, 0, 0,
+					0, 0, 0,
+					0, 0, 0,
+					0, 0, 0,
+					0, 0, 0,
+					0, 0, 0;
+            //Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
+			Eigen::MatrixXd pseudoInverse = vMat*sMat*uMat;
+			/*cout << jacobian*pseudoInverse << endl;
+			exit(0);*/
+			Eigen::VectorXd dr = pseudoInverse*dp;
+            cout << dr(0) << " " << dr(1) << " " << dr(2) << endl;
 			for (int k=0; k<12; k++) {
 				rotationsTemp[k] = rotations[k] + dr(k);
 			}
 			iterations++;
 		}
-        //cout << endl;
-        cout << endl;
 		double rot1[3] = {rotations[0], rotations[1], rotations[2]};
 		double rot2[3] = {rotations[3], rotations[4], rotations[5]};
 		double rot3[3] = {rotations[6], rotations[7], rotations[8]};
