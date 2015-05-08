@@ -1,4 +1,3 @@
-
 #include <string.h>
 #include <fstream>
 #include <cmath>
@@ -64,7 +63,7 @@ float numCurves = 0;
 int curFrame = 0;
 int frameStepSize = 0;
 int counter = 1;
-double ustep = .05;
+double ustep = .04;
 double errorBound = 1e-9; 
 double sError = 1e-4;
 double epsilon = 1e-9;
@@ -157,7 +156,6 @@ void myDisplay() {
     		     matrix(a2.length, 0, 0, 0)));
     matrix a4T = a3T.multiplymRet(matrix(curArm.rotation[0], curArm.rotation[1], curArm.rotation[2], 2).multiplymRet(
     		     matrix(curArm.length, 0, 0, 0)));
-    //cout << curArm.length << ", " << a2.length << ", " << a3.length << ", " << a4.length << endl;
     Vector4* start = new Vector4(0, 0, 0, 1);
     Vector4 p1 = rootT.multiplyv(*start);
     Vector4 p2 = a2T.multiplyv(*start);
@@ -409,6 +407,11 @@ void generateFrames() {
 		rotations.push_back(a4->rotation[0]);
 		rotations.push_back(a4->rotation[1]);
 		rotations.push_back(a4->rotation[2]);
+		if (goal[0] == 0 && goal[1] == 0 && goal[2] == 0) {
+			for (int r=0; r<12; r++) {
+				rotations[r] = rotations[r] + .1;
+			}
+		}
 		for (int j=0; j<12; j++) {
 			rotationsTemp.push_back(rotations[j]);
 		}
@@ -423,31 +426,6 @@ void generateFrames() {
 		int iterations = 0;
 		Eigen::VectorXd dr;
         bool dontWhile = false;
-        /*if((beforeArm->length + a2->length + a3->length + a4->length) < distance(0,0,0,goal)){
-            dontWhile = true;
-            double X = acos((1*goal[1] + 0*goal[2])/ (pow(pow(1,2) + pow(0,2),0.5) * pow(pow(goal[1],2) + pow(goal[2],2),0.5)));
-
-            double Z = acos((1*goal[0] + 0*goal[1])/ (pow(pow(1,2) + pow(0,2),0.5) * pow(pow(goal[0],2) + pow(goal[1],2),0.5)));
-            double Y = acos((1*goal[0] + 0*goal[2])/ (pow(pow(1,2) + pow(0,2),0.5) * pow(pow(goal[0],2) + pow(goal[2],2),0.5)));
-            
-            //matrix Z = matrix(0,0,rotXYPLANE,2);
-            //matrix Y = matrix(0,rotXZPLANE,0,2);
-            //matrix product = Z.multiplymRet(Y);
-            rotations[0] = X;
-            rotations[1] = Y;
-            rotations[2] = Z;
-            rotations[3] = X;
-            rotations[4] = Y;
-            rotations[5] = Z;
-            rotations[6] = X;
-            rotations[7] = Y;
-            rotations[8] = Z;
-            rotations[9] = X;
-            rotations[10] = Y;
-            rotations[11] = Z;
-            
-            
-        }*/
 		while (true && !dontWhile) {
 			Vector4 tempPe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
 						 (matrix(rotationsTemp[6], rotationsTemp[7], rotationsTemp[8], 2).multiplymRet(matrix(length[2], 0, 0, 0))).multiplymRet(
@@ -460,7 +438,6 @@ void generateFrames() {
 				rotations = rotationsTemp;
 				break;
 			} else if (currDist >= prevDist) {
-				//cout << "\n\n" << dr << "\n\n" << endl;
 				alpha = alpha / 2;
 			} else {
 				rotations = rotationsTemp;
@@ -558,10 +535,6 @@ void specialKey(int key, int x, int y){
 // the usual stuff, nothing exciting here
 //****************************************************
 int main(int argc, char *argv[]) {
-    
-     /*
-     * INSERT PARSER HERE
-     */
     const int MAX_CHARS_PER_LINE = 512;
     const int MAX_TOKENS_PER_LINE = 17;
     const char* const DELIMITER = " ";
