@@ -125,8 +125,8 @@ Arm::Arm(){
     rotation.push_back(0.0);
     rotation.push_back(0.0);
     Arm* a2 = new Arm(1);
-    Arm* a3 = new Arm(1);
-    Arm* a4 = new Arm(8);
+    Arm* a3 = new Arm(0.5);
+    Arm* a4 = new Arm(0.5);
     nextArm = a2;
     a2->setNext(a3);
     a3->setNext(a4);
