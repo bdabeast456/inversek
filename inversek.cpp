@@ -65,7 +65,7 @@ int curFrame = 0;
 int frameStepSize = 0;
 int counter = 1;
 double ustep = .05;
-double errorBound = 1e-2; 
+double errorBound = 1e-3; 
 double epsilon = 1e-9;
 vector<Bezier> curves;
 vector<Scene*> frames;
@@ -410,15 +410,6 @@ void generateFrames() {
 		for (int j=0; j<12; j++) {
 			rotationsTemp.push_back(rotations[j]);
 		}
-		/*double rotations[12] = {beforeArm->rotation[0], beforeArm->rotation[1], beforeArm->rotation[2],
-							   a2->rotation[0], a2->rotation[1], a2->rotation[2],
-							   a3->rotation[0], a3->rotation[1], a3->rotation[2],
-							   a4->rotation[0], a4->rotation[1], a4->rotation[2]}; 
-        //double rotations[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
-		double rotationsTemp[12] = {rotations[0], rotations[1], rotations[2], 
-			                        rotations[3], rotations[4], rotations[5],
-			                        rotations[6], rotations[7], rotations[8],
-			                        rotations[9], rotations[10], rotations[11]};*/
 		double length[4] = {beforeArm->length, a2->length, a3->length, a4->length};
 		double alpha = 1;
 		Vector4 Pe = ((matrix(rotationsTemp[9], rotationsTemp[10], rotationsTemp[11], 2).multiplymRet(matrix(length[3], 0, 0, 0))).multiplymRet(
@@ -435,7 +426,7 @@ void generateFrames() {
 						  matrix(rotationsTemp[0], rotationsTemp[1], rotationsTemp[2], 2).multiplymRet(matrix(length[0], 0, 0, 0)))))).multiplyv(
 						  Vector4(0, 0, 0, 1));
 		    double currDist = distance(tempPe.xc(), tempPe.yc(), tempPe.zc(), goal);
-			cout << prevDist << endl;
+			//cout << prevDist << endl;
 			
 			if (currDist <= errorBound || alpha < errorBound) {
 				rotations = rotationsTemp;
@@ -501,7 +492,6 @@ void generateFrames() {
                     alpha*(goal[2] - Pe.zc());
 			//Eigen::JacobiSVD<Eigen::MatrixXf> svd(jacobian, Eigen::ComputeThinU | Eigen::ComputeThinV);
             Eigen::MatrixXd dr = jacobian.jacobiSvd(Eigen::ComputeThinU|Eigen::ComputeThinV).solve(dp);
-            //cout << "\n\n" << dr << "\n\n" << endl;
 			for (int k=0; k<12; k++) {
 				rotationsTemp[k] = rotations[k] + dr(k);
 			}
